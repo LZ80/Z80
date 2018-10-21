@@ -88,7 +88,6 @@ public class Z80 {
                 size++;
             }
         }
-        
         /*
         for (int i = 0; i < i0; i++) {
             System.out.println(Memory[i]);
@@ -97,7 +96,6 @@ public class Z80 {
             System.out.println(req);
             System.out.println("");
         }*/
-        
         index = 0;
         while (!end) {
 
@@ -115,6 +113,8 @@ public class Z80 {
                 state = "Xor";
             } else if (req5.equals("10100")) {
                 state = "com";
+            } else if (req5.equals("10101")) {
+                state = "or";
             } else if (req5.equals("00101")) {
                 state = "end";
             } else if (req2.equals("01")) {
@@ -127,19 +127,177 @@ public class Z80 {
             System.out.println(state);
             switch (state) {
                 case "add":
-                    System.out.println("I add");
+                    int tempad = 0;
+                    int checksum;
+                    pos2 = req.substring(5, 8);
+                    
+                    switch (pos2) {
+                        case "111":
+                            tempad = z8.A;
+                            break;
+                        case "000":
+                            tempad = z8.B;
+                            break;
+                        case "001":
+                            tempad = z8.C;
+                            break;
+                        case "010":
+                            tempad = z8.D;
+                            break;
+                        case "011":
+                            tempad = z8.E;
+                            break;
+                        case "100":
+                            tempad = z8.H;
+                            break;
+                        case "101":
+                            tempad = z8.L;
+                            break;
+                    }
+                    checksum = tempad + z8.A;
+                    if(checksum >= 127){
+                        checksum -= 127;
+                        checksum -= 128;
+                    }else if(checksum <= -128){
+                        checksum += 127;
+                        checksum += 128;
+                    }
+                    z8.A = checksum;
+                    
                     index++;
                     break;
                 case "sub":
-                    System.out.println("I sub");
+                    int tempsub = 0;
+                    int checksub;
+                    pos2 = req.substring(5, 8);
+                    
+                    switch (pos2) {
+                        case "111":
+                            tempsub = z8.A;
+                            break;
+                        case "000":
+                            tempsub = z8.B;
+                            break;
+                        case "001":
+                            tempsub = z8.C;
+                            break;
+                        case "010":
+                            tempsub = z8.D;
+                            break;
+                        case "011":
+                            tempsub = z8.E;
+                            break;
+                        case "100":
+                            tempsub = z8.H;
+                            break;
+                        case "101":
+                            tempsub = z8.L;
+                            break;
+                    }
+                    checksub = tempsub + z8.A;
+                    if(checksub >= 127){
+                        checksub -= 127;
+                        checksub -= 128;
+                    }else if(checksub <= -128){
+                        checksub += 127;
+                        checksub += 128;
+                    }
+                    z8.A = checksub;
+                    
                     index++;
                     break;
                 case "and":
                     System.out.println("I and");
+                    int tempand = 0;
+                    pos2 = req.substring(5, 8);
+                    
+                    switch (pos2) {
+                        case "111":
+                            tempand = z8.A;
+                            break;
+                        case "000":
+                            tempand = z8.B;
+                            break;
+                        case "001":
+                            tempand = z8.C;
+                            break;
+                        case "010":
+                            tempand = z8.D;
+                            break;
+                        case "011":
+                            tempand = z8.E;
+                            break;
+                        case "100":
+                            tempand = z8.H;
+                            break;
+                        case "101":
+                            tempand = z8.L;
+                            break;
+                    }
+                    z8.A = z8.A & tempand;
+                    
                     index++;
                     break;
                 case "Xor":
-                    System.out.println("I Xor");
+                    int tempxor = 0;
+                    pos2 = req.substring(5, 8);
+                    
+                    switch (pos2) {
+                        case "111":
+                            tempxor = z8.A;
+                            break;
+                        case "000":
+                            tempxor = z8.B;
+                            break;
+                        case "001":
+                            tempxor = z8.C;
+                            break;
+                        case "010":
+                            tempxor = z8.D;
+                            break;
+                        case "011":
+                            tempxor = z8.E;
+                            break;
+                        case "100":
+                            tempxor = z8.H;
+                            break;
+                        case "101":
+                            tempxor = z8.L;
+                            break;
+                    }
+                    z8.A = z8.A ^ tempxor;
+                    
+                    index++;
+                    break;
+                case "or":
+                    int tempor = 0;
+                    pos2 = req.substring(5, 8);
+                    
+                    switch (pos2) {
+                        case "111":
+                            tempor = z8.A;
+                            break;
+                        case "000":
+                            tempor = z8.B;
+                            break;
+                        case "001":
+                            tempor = z8.C;
+                            break;
+                        case "010":
+                            tempor = z8.D;
+                            break;
+                        case "011":
+                            tempor = z8.E;
+                            break;
+                        case "100":
+                            tempor = z8.H;
+                            break;
+                        case "101":
+                            tempor = z8.L;
+                            break;
+                    }
+                    z8.A = z8.A | tempor;
+                    
                     index++;
                     break;
                 case "Com":
