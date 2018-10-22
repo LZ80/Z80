@@ -42,12 +42,19 @@ public class Z80 {
     }
     
     static int hexToDec(String hex){
-        int decimal = Integer.parseInt(hex,16);
+        String binary = hexToBin(hex);
+        int decimal = Integer.parseInt(binary.substring(1),2);
+        if(binary.charAt(0)=='1'){
+            decimal -= 128;
+        }
         return decimal;
     }
     
-    static int binToDec(String bin){
-        int decimal = Integer.parseInt(bin,2);
+    static int binToDec(String binary){
+        int decimal = Integer.parseInt(binary.substring(1),2);
+        if(binary.charAt(0)=='1'){
+            decimal -= 128;
+        }
         return decimal;
     }
     
@@ -56,14 +63,20 @@ public class Z80 {
         while (binary.length() < 8) {
             binary = "0" + binary;
         }
+        if(binary.length()>8){
+            binary = binary.substring(24);
+        }
         return binary;
     }
     
     static String decToHex (int n){
-        String hex = Integer.toString(n, 16);
+        String binary = decToBin(n);
+        int decimal = Integer.parseInt(binary,2);
+        String hex = Integer.toString(decimal,16);
         if(hex.length() < 2){
             hex = "0" + hex;
         }
+        hex = hex.toUpperCase();
         return hex;
     }
 
@@ -77,6 +90,7 @@ public class Z80 {
         String pos1;
         String pos2;
         String temphl;
+        String tempidx;
         int size;
         int index;
         boolean end = false;
@@ -134,6 +148,12 @@ public class Z80 {
                 state = "add";
             } else if (req.equals("01110110")) {
                 state = "end";
+            } else if (req.equals("11000010")) {
+                state = "jnz";
+            } else if (req.equals("11000011")) {
+                state = "j**";
+            } else if (req.equals("11001010")) {
+                state = "jz";
             } else if (req.equals("00100001")) {
                 state = "ldhl";
             } else if (req5.equals("10010")) {
@@ -159,6 +179,31 @@ public class Z80 {
             }
             System.out.println(state);
             switch (state) {
+                case "jnz":
+                    index++;
+                    if((decToBin(z8.F).charAt(0)=='1')||(decToBin(z8.F).charAt(1)=='1')){
+                        tempidx = Memory[index];
+                        index++;
+                        tempidx = Memory[index] + tempidx + "";
+                        index = Integer.parseInt(tempidx,16);
+                    }
+                    break;
+                case "j**":
+                        index++;
+                        tempidx = Memory[index];
+                        index++;
+                        tempidx = Memory[index] + tempidx + "";
+                        index = Integer.parseInt(tempidx,16);
+                        break;
+                case "jz":
+                    index++;
+                    if(decToBin(z8.F).charAt(1)=='1'){
+                        tempidx = Memory[index];
+                        index++;
+                        tempidx = Memory[index] + tempidx + "";
+                        index = Integer.parseInt(tempidx,16);
+                    }
+                    break;
                 case "ldhl":
                     index++;
                     z8.L = binToDec(Memory[index]);
@@ -196,12 +241,10 @@ public class Z80 {
                             break;
                     }
                     checksum = tempad + z8.A;
-                    if(checksum >= 127){
-                        checksum -= 127;
-                        checksum -= 128;
-                    }else if(checksum <= -128){
-                        checksum += 127;
-                        checksum += 128;
+                    if(checksum > 127){
+                        checksum -= 256;
+                    }else if(checksum < -128){
+                        checksum += 256;
                     }
                     z8.A = checksum;
                     
@@ -235,13 +278,11 @@ public class Z80 {
                             tempsub = z8.L;
                             break;
                     }
-                    checksub = tempsub + z8.A;
-                    if(checksub >= 127){
-                        checksub -= 127;
-                        checksub -= 128;
-                    }else if(checksub <= -128){
-                        checksub += 127;
-                        checksub += 128;
+                    checksub = z8.A - tempsub;
+                    if(checksub > 127){
+                        checksub -= 256;
+                    }else if(checksub < -128){
+                        checksub += 256;
                     }
                     z8.A = checksub;
                     
@@ -275,6 +316,7 @@ public class Z80 {
                             tempand = z8.L;
                             break;
                     }
+                    System.out.println(z8.A + " " + tempand + " " + (byte)z8.A + " " + (byte)tempand);
                     z8.A = z8.A & tempand;
                     
                     index++;
@@ -307,7 +349,7 @@ public class Z80 {
                             tempxor = z8.L;
                             break;
                     }
-                    z8.A = z8.A ^ tempxor;
+                    z8.A = (byte)z8.A ^ (byte)tempxor;
                     
                     index++;
                     break;
@@ -339,7 +381,7 @@ public class Z80 {
                             tempor = z8.L;
                             break;
                     }
-                    z8.A = z8.A | tempor;
+                    z8.A = (byte)z8.A | (byte)tempor;
                     
                     index++;
                     break;
@@ -379,7 +421,8 @@ public class Z80 {
                             break;
                         case "110":
                             temphl = decToBin(z8.H)+decToBin(z8.L)+"";
-                            templr = hexToDec(Memory[binToDec(temphl)]);
+                            System.out.println(temphl + "<-");
+                            templr = hexToDec(Memory[Integer.parseInt(temphl,2)]);
                             break;
                     }
 
@@ -407,7 +450,8 @@ public class Z80 {
                             break;
                         case "110":
                             temphl = decToBin(z8.H)+decToBin(z8.L)+"";
-                            Memory[binToDec(temphl)] = decToHex(templr);
+                            System.out.println(temphl + "<-");
+                            Memory[Integer.parseInt(temphl,2)] = decToHex(templr);
                             break;
                     }
                     
@@ -420,6 +464,8 @@ public class Z80 {
                     index++;
                     req = hexToBin(Memory[index]);
                     templn = binToDec(req);
+                    
+                    System.out.println(templn + " <-> " + req +"[" + index + "]" + " " + Memory[index]);
                     
                     switch (pos1) {
                         case "111":
@@ -445,7 +491,7 @@ public class Z80 {
                             break;
                         case "110":
                             temphl = decToBin(z8.H)+decToBin(z8.L)+"";
-                            Memory[binToDec(temphl)] = decToHex(templn);
+                            Memory[Integer.parseInt(temphl,2)] = decToHex(templn);
                             break;
                     }
                     
@@ -480,3 +526,4 @@ public class Z80 {
     }
 
 }
+
