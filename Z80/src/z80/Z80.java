@@ -69,7 +69,7 @@ public class Z80 {
 
     public static void main(String[] args) {
 
-        String memorytxt = "FF";
+        String memorytxt ="";
         String req;
         String req5;
         String req2;
@@ -82,21 +82,25 @@ public class Z80 {
 
         z80 z8 = new z80();
 
-        z8.A = 99;
-
         String[] Memory = new String[65536];
         for (int i = 0; i < 65536; i++) {
             Memory[i] = "00";
         }
 
-        /*try{
+        try{
         FileReader fr = new FileReader("Memory.txt");
         BufferedReader br = new BufferedReader(fr);
-            
-        memorytxt = br.readLine();
+        
+        String st; 
+        while ((st = br.readLine()) != null){ 
+          memorytxt = memorytxt+st;
+        }      
+        System.out.println("Memory "+memorytxt);
         }catch(Exception e){
-            
-        }*/
+            System.out.println("Error Uploading File");
+        }
+        
+        
         size = 0;
 
         while (memorytxt.length() != 0) {
