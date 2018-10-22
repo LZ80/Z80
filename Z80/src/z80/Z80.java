@@ -24,9 +24,13 @@ public class Z80 {
         boolean HALT, WAIT, INT, NMI, RESET;    //CPU control
         boolean BUSRQ, BUSACK;               //CPU Bus control
         boolean CLK, V5, GROUND;
-        int A, B, C, D, E, H, L;
-        int BC, DE, HL, AF;
-
+        int A, F;
+        int B, C;
+        int D, E;
+        int H, L;
+        //Index Pionters
+        int IX;
+        int IY;
     }
 
     static String hexToBin(String hex) {
@@ -46,10 +50,26 @@ public class Z80 {
         int decimal = Integer.parseInt(bin,2);
         return decimal;
     }
+    
+    static String decToBin(int n){
+        String binary = Integer.toBinaryString(n);
+        while (binary.length() < 8) {
+            binary = "0" + binary;
+        }
+        return binary;
+    }
+    
+    static String secToHex (int n){
+        String hex = Integer.toString(n, 16);
+        if(hex.length() < 2){
+            hex = "0" + hex;
+        }
+        return hex;
+    }
 
     public static void main(String[] args) {
 
-        String memorytxt = "3Exx2Axx28";
+        String memorytxt = "FF";
         String req;
         String req5;
         String req2;
@@ -105,17 +125,21 @@ public class Z80 {
             req2 = req.substring(0, 2);
             if (req5.equals("10000")) {
                 state = "add";
-            } else if (req5.equals("10001")) {
-                state = "sub";
             } else if (req5.equals("10010")) {
-                state = "and";
+                state = "sub";
+            } else if (req5.equals("10001")) {
+                state = "adc";
             } else if (req5.equals("10011")) {
-                state = "Xor";
+                state = "sbc";
             } else if (req5.equals("10100")) {
-                state = "com";
+                state = "and";
             } else if (req5.equals("10101")) {
+                state = "Xor";
+            } else if (req5.equals("10111")) {
+                state = "com";
+            } else if (req5.equals("10110")) {
                 state = "or";
-            } else if (req5.equals("00101")) {
+            } else if (req5.equals("11111")) {
                 state = "end";
             } else if (req2.equals("01")) {
                 state = "ldr";
@@ -238,6 +262,7 @@ public class Z80 {
                     
                     index++;
                     break;
+                    
                 case "Xor":
                     int tempxor = 0;
                     pos2 = req.substring(5, 8);
@@ -269,6 +294,7 @@ public class Z80 {
                     
                     index++;
                     break;
+                    
                 case "or":
                     int tempor = 0;
                     pos2 = req.substring(5, 8);
@@ -300,10 +326,12 @@ public class Z80 {
                     
                     index++;
                     break;
+                    
                 case "Com":
                     System.out.println("I compare");
                     index++;
                     break;
+                    
                 case "ldr":
                     pos1 = req.substring(2, 5);
                     pos2 = req.substring(5, 8);
@@ -360,6 +388,7 @@ public class Z80 {
                     
                     index++;
                     break;
+                    
                 case "ldn":
                     int templn=0;
                     pos1 = req.substring(2, 5);
@@ -393,10 +422,24 @@ public class Z80 {
                     
                     index++;
                     break;
+                    
+                case "adc":
+                    int carrys = Integer.valueOf(decToBin(z8.F).charAt(0));
+                    z8.A += carrys;
+                    index++;
+                    break;
+                    
+                case "sbc":
+                    int carry = Integer.valueOf(decToBin(z8.F).charAt(0));
+                    z8.A -= carry;
+                    index++;
+                    break;
+                    
                 case "End":
                     System.out.println("End");
                     end = true;
                     break;
+                    
                 default:
                     System.out.println("I mistake");
                     end = true;
