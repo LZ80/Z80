@@ -59,7 +59,7 @@ public class Z80 {
         return binary;
     }
     
-    static String secToHex (int n){
+    static String decToHex (int n){
         String hex = Integer.toString(n, 16);
         if(hex.length() < 2){
             hex = "0" + hex;
@@ -73,8 +73,10 @@ public class Z80 {
         String req;
         String req5;
         String req2;
+        String req8;
         String pos1;
         String pos2;
+        String temphl;
         int size;
         int index;
         boolean end = false;
@@ -127,8 +129,13 @@ public class Z80 {
             System.out.println(Memory[index] + "(" + index + ")" + ": " + req);
             req5 = req.substring(0, 5);
             req2 = req.substring(0, 2);
+            req8 = req.substring(5);
             if (req5.equals("10000")) {
                 state = "add";
+            } else if (req.equals("01110110")) {
+                state = "end";
+            } else if (req.equals("00100001")) {
+                state = "ldhl";
             } else if (req5.equals("10010")) {
                 state = "sub";
             } else if (req5.equals("10001")) {
@@ -143,17 +150,23 @@ public class Z80 {
                 state = "com";
             } else if (req5.equals("10110")) {
                 state = "or";
-            } else if (req5.equals("11111")) {
-                state = "end";
             } else if (req2.equals("01")) {
                 state = "ldr";
-            } else if (req2.equals("00")) {
+            } else if (req2.equals("00")&&req8.equals("110")) {
                 state = "ldn";
             } else {
                 state = "xxx";
             }
             System.out.println(state);
             switch (state) {
+                case "ldhl":
+                    index++;
+                    z8.L = binToDec(Memory[index]);
+                    index++;
+                    z8.H = binToDec(Memory[index]);
+                    index++;
+                    break;
+                    
                 case "add":
                     int tempad = 0;
                     int checksum;
@@ -364,6 +377,10 @@ public class Z80 {
                         case "101":
                             templr = z8.L;
                             break;
+                        case "110":
+                            temphl = decToBin(z8.H)+decToBin(z8.L)+"";
+                            templr = hexToDec(Memory[binToDec(temphl)]);
+                            break;
                     }
 
                     switch (pos1) {
@@ -387,6 +404,10 @@ public class Z80 {
                             break;
                         case "101":
                             z8.L = templr;
+                            break;
+                        case "110":
+                            temphl = decToBin(z8.H)+decToBin(z8.L)+"";
+                            Memory[binToDec(temphl)] = decToHex(templr);
                             break;
                     }
                     
@@ -421,6 +442,10 @@ public class Z80 {
                             break;
                         case "101":
                             z8.L = templn;
+                            break;
+                        case "110":
+                            temphl = decToBin(z8.H)+decToBin(z8.L)+"";
+                            Memory[binToDec(temphl)] = decToHex(templn);
                             break;
                     }
                     
