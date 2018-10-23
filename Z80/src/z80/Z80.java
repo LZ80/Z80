@@ -9,7 +9,6 @@ package z80;
  *
  * @author Daniel Ángulo, Arkai Julian Ariza, Miguel Castro
  */
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.*;
@@ -114,6 +113,15 @@ public class Z80 {
         hex = hex.toUpperCase();
         return hex;
     }
+<<<<<<< HEAD
+
+    //static Main gui;
+    
+    public static void main(String[] args) {
+        
+        //gui = new Main();
+        //gui.setVisible(true);
+=======
     
     static Main gui;
     
@@ -121,6 +129,7 @@ public class Z80 {
     public static boolean stepMode = false;
     
     public static void runSimulation(){
+>>>>>>> b46e29577e02780156fa4af99a74a81b086c392a
         String memorytxt = ""; //Posición que ayuda a guardar los datos de el txt a el arregloque simula la memoria
         String req;       // Ayuda a guardar el registro actual completo
         String req5;      // Ayuda a guardar el registro actual de la posicion 0 a 5
@@ -225,7 +234,11 @@ public class Z80 {
             System.out.println(state);
             gui.updateLogText(state+"\n");
             switch (state) {
+<<<<<<< HEAD
+                case "jnz":     //Jump si lo que está en el acumulador es negativo o 0
+=======
                 case "jnz": //Jump si lo que está en el acumulador es negativo o 0
+>>>>>>> b46e29577e02780156fa4af99a74a81b086c392a
                     index++;
                     if ((decToBin(z8.F).charAt(0) == '1') || (decToBin(z8.F).charAt(1) == '1')) {
                         tempidx = Memory[index];
@@ -238,7 +251,11 @@ public class Z80 {
                     }
                     z8.setFZero();
                     break;
+<<<<<<< HEAD
+                case "j**":     // Jmp a la posición de memoria que se especifica
+=======
                 case "j**": // Jmp a la posición de memoria que se especifica
+>>>>>>> b46e29577e02780156fa4af99a74a81b086c392a
                     index++;
                     tempidx = Memory[index];
                     index++;
@@ -246,7 +263,11 @@ public class Z80 {
                     index = Integer.parseInt(tempidx, 16);
                     z8.setFZero();
                     break;
+<<<<<<< HEAD
+                case "jz":      //Jump si el acumulador es 0;
+=======
                 case "jz": //Jump si el acumulador es 0;
+>>>>>>> b46e29577e02780156fa4af99a74a81b086c392a
                     index++;
                     if (decToBin(z8.F).charAt(1) == '1') {
                         tempidx = Memory[index];
@@ -259,7 +280,11 @@ public class Z80 {
                     }
                     z8.setFZero();
                     break;
+<<<<<<< HEAD
+                case "ldhl":        // carga en HL lasiguiente posición de memoria
+=======
                 case "ldhl":  // carga en HL lasiguiente posición de memoria
+>>>>>>> b46e29577e02780156fa4af99a74a81b086c392a
                     index++;
                     z8.L = binToDec(Memory[index]);
                     index++;
@@ -268,7 +293,11 @@ public class Z80 {
                     z8.setFZero();
                     break;
                 
+<<<<<<< HEAD
+                case "add":     // suma a con el registro especificado
+=======
                 case "add": // suma a con el registro especificado
+>>>>>>> b46e29577e02780156fa4af99a74a81b086c392a
                     int tempad = 0;
                     int checksum;
                     pos2 = req.substring(5, 8);
@@ -309,7 +338,11 @@ public class Z80 {
                     index++;
                     z8.setFZero();
                     break;
+<<<<<<< HEAD
+                case "sub":     //resta el registro especificado a A y gualrda el resultado en A
+=======
                 case "sub": //resta el registro especificado a A y gualrda el resultado en A
+>>>>>>> b46e29577e02780156fa4af99a74a81b086c392a
                     int tempsub = 0;
                     int checksub;
                     pos2 = req.substring(5, 8);
@@ -423,7 +456,11 @@ public class Z80 {
                     z8.setFZero();
                     break;
                 
+<<<<<<< HEAD
+                case "or"://Operación or entre A y el registro especificado, se guarda en A
+=======
                 case "or": //Operación or entre A y el registro especificado, se guarda en A
+>>>>>>> b46e29577e02780156fa4af99a74a81b086c392a
                     int tempor = 0;
                     pos2 = req.substring(5, 8);
                     
@@ -456,7 +493,11 @@ public class Z80 {
                     z8.setFZero();
                     break;
                 
+<<<<<<< HEAD
+                case "Com":// resta el registro r a A y altera las flags congruentemente 
+=======
                 case "Com": // resta el registro r a A y altera las flags congruentemente
+>>>>>>> b46e29577e02780156fa4af99a74a81b086c392a
                     int tempcom = 0;
                     int checkcom;
                     pos2 = req.substring(5, 8);
@@ -579,7 +620,11 @@ public class Z80 {
                     index++;
                     break;
                 
+<<<<<<< HEAD
+                case "ldn":     // Guarda en elregistro R el valor de la siguiente posición de memoria
+=======
                 case "ldn": // Guarda en elregistro R el valor de la siguiente posición de memoria
+>>>>>>> b46e29577e02780156fa4af99a74a81b086c392a
                     int templn = 0;
                     pos1 = req.substring(2, 5);
                     index++;
