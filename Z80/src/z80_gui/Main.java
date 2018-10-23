@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 package z80_gui;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import z80.*;
 
 /**
@@ -282,9 +284,31 @@ public class Main extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    static boolean check = false;
     private void stepButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stepButtonActionPerformed
-        // TODO add your handling code here:
+        MouseListener MouseLst = new MouseListener(){
+            @Override
+            public void mouseClicked(MouseEvent e){
+                check = true;
+            };
+            @Override
+            public void mousePressed(MouseEvent e){
+            };
+            @Override
+            public void mouseReleased(MouseEvent e){
+            };
+            @Override
+            public void mouseEntered(MouseEvent e){
+            };
+            @Override
+            public void mouseExited(MouseEvent e){
+            };
+        };
+        stepButton.addMouseListener(MouseLst);
+        Z80.stepMode = true;
+        Z80.step = true;
+        //Z80.runSimulation();
+        checkStep();
     }//GEN-LAST:event_stepButtonActionPerformed
 
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
@@ -315,6 +339,14 @@ public class Main extends javax.swing.JFrame {
 
     public void updateLogText(String x){
         jTextArea1.append(x);
+    }
+    
+    public void checkStep(){
+        if(check==true){
+            jTextArea1.append("step change false ");
+            Z80.step = false;
+        }
+        check=false;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
