@@ -12,6 +12,7 @@ package z80;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.*;
+import z80_gui.*;
 
 public class Z80 {
     
@@ -102,9 +103,20 @@ public class Z80 {
         hex = hex.toUpperCase();
         return hex;
     }
+<<<<<<< HEAD
     
     public static void main(String[] args) {
         
+=======
+
+    static Main gui;
+    
+    public static void main(String[] args) {
+        
+        gui = new Main();
+        gui.setVisible(true);
+
+>>>>>>> fb71874a70b1133894d2df9895de4ae187884fb6
         String memorytxt = "";
         String req;
         String req5;
