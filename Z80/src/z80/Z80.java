@@ -207,6 +207,9 @@ public class Z80 {
             } catch (InterruptedException ex) {
                 Logger.getLogger(Z80.class.getName()).log(Level.SEVERE, null, ex);
             }
+            if(reset){
+                return;
+            }
             if(state!="end"){
                 if (req5.equals("10000")) {
                     state = "add";
@@ -686,11 +689,6 @@ public class Z80 {
                 stepMode = false;
                 reset = false;
                 index = 0;
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Z80.class.getName()).log(Level.SEVERE, null, ex);
-                }
                 runSimulation();
             }
         }
