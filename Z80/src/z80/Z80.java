@@ -33,11 +33,11 @@ public class Z80 {
         int IX;
         int IY;
         
-        public void setF() {
+        public void setF() {        //Da a F el valor de la cadena Flags
             this.F = binToDec(this.Flags);
         }
         
-        public void checkAcc() {
+        public void checkAcc() {        //Revisa el valor del acumulador y actualiza las banderas
             if (this.A == 0) {
                 this.Flags = this.Flags.substring(0, 1) + "1" + this.Flags.substring(2);
             } else {
@@ -52,11 +52,21 @@ public class Z80 {
             
         }
         
-        public void setFZero() {
+        public void setFZero() {    //pone en 0 los valores relacionados a la operacion anterior
             this.Flags = this.Flags.substring(0, 2) + "000000";            
         }
     }
     
+    /*
+    Los siguientes metodos pasan los datos de uno a otro de los posibles formatos:
+    Bin: Valor binario que se guarda en un String de tamaño 8.
+    Hex: 
+    Valor hexagecimal que se guarda en un string y siempre mantiene un largo de 2 caracteres, incluso para negativos.
+    En este formato están los valores de la memoria para simular una memoria con una facilidad mayor al binario.
+    Dec: 
+    Valor decimal guardado en un int para mayor facilidad de operación, en este formato están los registros por facilidad.
+    los valores se encuentran entre 127 y -128
+    */
     static String hexToBin(String hex) {
         String binAddr = Integer.toBinaryString(Integer.parseInt(hex, 16));
         while (binAddr.length() < 8) {
@@ -65,7 +75,7 @@ public class Z80 {
         return binAddr;
     }
     
-    static int hexToDec(String hex) {
+    static int hexToDec(String hex) { 
         String binary = hexToBin(hex);
         int decimal = Integer.parseInt(binary.substring(1), 2);
         if (binary.charAt(0) == '1') {
@@ -103,32 +113,25 @@ public class Z80 {
         hex = hex.toUpperCase();
         return hex;
     }
-<<<<<<< HEAD
+
+    //static Main gui;
     
     public static void main(String[] args) {
         
-=======
-
-    static Main gui;
-    
-    public static void main(String[] args) {
-        
-        gui = new Main();
-        gui.setVisible(true);
-
->>>>>>> fb71874a70b1133894d2df9895de4ae187884fb6
-        String memorytxt = "";
-        String req;
-        String req5;
-        String req2;
-        String req8;
-        String pos1;
-        String pos2;
+        //gui = new Main();
+        //gui.setVisible(true);
+        String memorytxt = ""; //Posición que ayuda a guardar los datos de el txt a el arregloque simula la memoria
+        String req;       // Ayuda a guardar el registro actual completo
+        String req5;      // Ayuda a guardar el registro actual de la posicion 0 a 5
+        String req2;      // Ayuda a guardar el registro actual de la posicion 0 a 2
+        String req8;      // Ayuda a guardar el registro actual de la posicion 5 a 8
+        String pos1;      // Ayuda a guardar el código de un registro
+        String pos2;      // Ayuda a guardar el código de un registro
         String temphl;
         String tempidx;
-        String tempstr;
         int size;
-        int index;
+        int index;        //Indice que guarda la posicion en la memoria que se está leyendo
+                            // Se le llama como 
         boolean end = false;
         String state = "";
         
@@ -178,6 +181,13 @@ public class Z80 {
             req5 = req.substring(0, 5);
             req2 = req.substring(0, 2);
             req8 = req.substring(5);
+            // La identificación de los códigos se hace con if y no con switch
+            // por la facilidad que lleva poner los códigos más largos al principio
+            // Y a los más cortos al final
+            // Cómo los códigos más cortos se identifican todavía incompletos 
+            // puede haber colisión 
+            // así que se ponen los códigos que son eccepciones al principio para evitar estos casos
+            // Ej: State "end" se puede ver como lr hl -> hl
             if (req5.equals("10000")) {
                 state = "add";
             } else if (req.equals("01110110")) {
@@ -213,7 +223,7 @@ public class Z80 {
             }
             System.out.println(state);
             switch (state) {
-                case "jnz":
+                case "jnz":     //Jump si lo que está en el acumulador es negativo o 0
                     index++;
                     if ((decToBin(z8.F).charAt(0) == '1') || (decToBin(z8.F).charAt(1) == '1')) {
                         tempidx = Memory[index];
@@ -226,7 +236,7 @@ public class Z80 {
                     }
                     z8.setFZero();
                     break;
-                case "j**":
+                case "j**":     // Jmp a la posición de memoria que se especifica
                     index++;
                     tempidx = Memory[index];
                     index++;
@@ -234,7 +244,7 @@ public class Z80 {
                     index = Integer.parseInt(tempidx, 16);
                     z8.setFZero();
                     break;
-                case "jz":
+                case "jz":      //Jump si el acumulador es 0;
                     index++;
                     if (decToBin(z8.F).charAt(1) == '1') {
                         tempidx = Memory[index];
@@ -247,7 +257,7 @@ public class Z80 {
                     }
                     z8.setFZero();
                     break;
-                case "ldhl":
+                case "ldhl":        // carga en HL lasiguiente posición de memoria
                     index++;
                     z8.L = binToDec(Memory[index]);
                     index++;
@@ -256,7 +266,7 @@ public class Z80 {
                     z8.setFZero();
                     break;
                 
-                case "add":
+                case "add":     // suma a con el registro especificado
                     int tempad = 0;
                     int checksum;
                     pos2 = req.substring(5, 8);
@@ -297,7 +307,7 @@ public class Z80 {
                     index++;
                     z8.setFZero();
                     break;
-                case "sub":
+                case "sub":     //resta el registro especificado a A y gualrda el resultado en A
                     int tempsub = 0;
                     int checksub;
                     pos2 = req.substring(5, 8);
@@ -341,7 +351,7 @@ public class Z80 {
                     
                     index++;
                     break;
-                case "and":
+                case "and": //Operación and entre A y el registro especificado, se guarda en A
                     System.out.println("I and");
                     int tempand = 0;
                     pos2 = req.substring(5, 8);
@@ -376,7 +386,7 @@ public class Z80 {
                     z8.setFZero();
                     break;
                 
-                case "Xor":
+                case "Xor": //Operación Xor entre A y el registro especificado, se guarda en A
                     int tempxor = 0;
                     pos2 = req.substring(5, 8);
                     
@@ -409,7 +419,7 @@ public class Z80 {
                     z8.setFZero();
                     break;
                 
-                case "or":
+                case "or"://Operación or entre A y el registro especificado, se guarda en A
                     int tempor = 0;
                     pos2 = req.substring(5, 8);
                     
@@ -442,7 +452,7 @@ public class Z80 {
                     z8.setFZero();
                     break;
                 
-                case "Com":
+                case "Com":// resta el registro r a A y altera las flags congruentemente 
                     int tempcom = 0;
                     int checkcom;
                     pos2 = req.substring(5, 8);
@@ -492,7 +502,7 @@ public class Z80 {
                     index++;
                     break;
                 
-                case "ldr":
+                case "ldr": // Carga en un registro R el valor de un registro R'
                     pos1 = req.substring(2, 5);
                     pos2 = req.substring(5, 8);
                     System.out.println("I load: " + req + " (" + pos2 + " -> " + pos1 + ")");
@@ -562,7 +572,7 @@ public class Z80 {
                     index++;
                     break;
                 
-                case "ldn":
+                case "ldn":     // Guarda en elregistro R el valor de la siguiente posición de memoria
                     int templn = 0;
                     pos1 = req.substring(2, 5);
                     index++;
@@ -604,20 +614,20 @@ public class Z80 {
                     z8.setFZero();
                     break;
                 
-                case "adc":
+                case "adc": // suma el carry a A
                     int carrys = Integer.valueOf(decToBin(z8.F).charAt(0));
                     z8.A += carrys;
                     index++;
                     z8.setFZero();
                     break;
                 
-                case "sbc":
+                case "sbc": // resta el carry a A
                     int carry = Integer.valueOf(decToBin(z8.F).charAt(0));
                     z8.A -= carry;
                     index++;
                     break;
                 
-                case "End":
+                case "End": // codigo finaliza la ejecución
                     System.out.println("End");
                     end = true;
                     z8.setFZero();
