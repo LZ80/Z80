@@ -116,10 +116,14 @@ public class Z80 {
     
     static Main gui;
     
+    public static boolean startSim = false;
     public static boolean step = false;
     public static boolean stepMode = false;
     
     public static void runSimulation(){
+        while(!startSim){
+        }
+        
         String memorytxt = ""; //Posición que ayuda a guardar los datos de el txt a el arregloque simula la memoria
         String req;       // Ayuda a guardar el registro actual completo
         String req5;      // Ayuda a guardar el registro actual de la posicion 0 a 5
@@ -171,6 +175,7 @@ public class Z80 {
         }
 
         index = 0;
+        
         while (!end) {
             while(step){
                 gui.checkStep();
@@ -653,7 +658,7 @@ public class Z80 {
     public static void main(String[] args) {
         gui = new Main();
         gui.setVisible(true);
-        
+        runSimulation();
     }
     
 }
