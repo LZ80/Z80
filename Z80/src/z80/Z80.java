@@ -13,6 +13,7 @@ package z80;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.*;
+import z80_gui.*;
 
 public class Z80 {
 
@@ -103,9 +104,13 @@ public class Z80 {
         return hex;
     }
     
-
+    static Main gui;
+    
     public static void main(String[] args) {
-
+        
+        gui = new Main();
+        gui.setVisible(true);
+        
         String memorytxt ="";
         String req;
         String req5;
