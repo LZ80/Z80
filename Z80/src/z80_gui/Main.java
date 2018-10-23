@@ -307,7 +307,7 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_startButtonActionPerformed
 
     private void haltButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_haltButtonActionPerformed
-        // TODO add your handling code here:
+        Z80.state="end";
     }//GEN-LAST:event_haltButtonActionPerformed
 
     private void nmiBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nmiBoxActionPerformed
@@ -325,11 +325,14 @@ public class Main extends javax.swing.JFrame {
 
     private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
         jTextArea1.setText("");
+        Z80.reset = true;
     }//GEN-LAST:event_resetButtonActionPerformed
 
     private void stepButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stepButtonActionPerformed
+        if(Z80.stepMode == false){
+            Z80.step = true;
+        }
         Z80.stepMode = true;
-        Z80.step = true;
     }//GEN-LAST:event_stepButtonActionPerformed
 
     public void updateLogText(String x){

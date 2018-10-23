@@ -12,6 +12,8 @@ package z80;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import z80_gui.*;
 
 public class Z80 {
@@ -119,7 +121,9 @@ public class Z80 {
     public static boolean startSim = false;
     public static boolean step = false;
     public static boolean stepMode = false;
-    
+    public static boolean reset = false;
+    public static int index = 0;
+    public static String state;
     public static void runSimulation(){
         while(!startSim){
         }
@@ -134,10 +138,10 @@ public class Z80 {
         String temphl;
         String tempidx;
         int size;
-        int index;        //Indice que guarda la posicion en la memoria que se está leyendo
+                //Indice que guarda la posicion en la memoria que se está leyendo
                             // Se le llama como 
         boolean end = false;
-        String state = "";
+        state = "";
         
         
         z80 z8 = new z80();
@@ -178,6 +182,11 @@ public class Z80 {
         
         while (!end) {
             while(step){
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Z80.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 gui.checkStep();
             }
             req = hexToBin(Memory[index]);
@@ -193,38 +202,45 @@ public class Z80 {
             // puede haber colisión 
             // así que se ponen los códigos que son eccepciones al principio para evitar estos casos
             // Ej: State "end" se puede ver como lr hl -> hl
-            if (req5.equals("10000")) {
-                state = "add";
-            } else if (req.equals("01110110")) {
-                state = "end";
-            } else if (req.equals("11000010")) {
-                state = "jnz";
-            } else if (req.equals("11000011")) {
-                state = "j**";
-            } else if (req.equals("11001010")) {
-                state = "jz";
-            } else if (req.equals("00100001")) {
-                state = "ldhl";
-            } else if (req5.equals("10010")) {
-                state = "sub";
-            } else if (req5.equals("10001")) {
-                state = "adc";
-            } else if (req5.equals("10011")) {
-                state = "sbc";
-            } else if (req5.equals("10100")) {
-                state = "and";
-            } else if (req5.equals("10101")) {
-                state = "Xor";
-            } else if (req5.equals("10111")) {
-                state = "com";
-            } else if (req5.equals("10110")) {
-                state = "or";
-            } else if (req2.equals("01")) {
-                state = "ldr";
-            } else if (req2.equals("00") && req8.equals("110")) {
-                state = "ldn";
-            } else {
-                state = "xxx";
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Z80.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            if(state!="end"){
+                if (req5.equals("10000")) {
+                    state = "add";
+                } else if (req.equals("01110110")) {
+                    state = "end";
+                } else if (req.equals("11000010")) {
+                    state = "jnz";
+                } else if (req.equals("11000011")) {
+                    state = "j**";
+                } else if (req.equals("11001010")) {
+                    state = "jz";
+                } else if (req.equals("00100001")) {
+                    state = "ldhl";
+                } else if (req5.equals("10010")) {
+                    state = "sub";
+                } else if (req5.equals("10001")) {
+                    state = "adc";
+                } else if (req5.equals("10011")) {
+                    state = "sbc";
+                } else if (req5.equals("10100")) {
+                    state = "and";
+                } else if (req5.equals("10101")) {
+                    state = "Xor";
+                } else if (req5.equals("10111")) {
+                    state = "com";
+                } else if (req5.equals("10110")) {
+                    state = "or";
+                } else if (req2.equals("01")) {
+                    state = "ldr";
+                } else if (req2.equals("00") && req8.equals("110")) {
+                    state = "ldn";
+                } else {
+                    state = "xxx";
+                }
             }
             System.out.println(state);
             gui.updateLogText(state+"\n");
@@ -633,11 +649,10 @@ public class Z80 {
                     index++;
                     break;
                 
-                case "End": // codigo finaliza la ejecución
+                case "end": // codigo finaliza la ejecución
                     System.out.println("End");
                     gui.updateLogText("End"+"\n");
                     end = true;
-                    z8.setFZero();
                     break;
                 
                 default:
@@ -659,6 +674,26 @@ public class Z80 {
         gui = new Main();
         gui.setVisible(true);
         runSimulation();
+        while(true){
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Z80.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            if(reset){
+                startSim = false;
+                step = false;
+                stepMode = false;
+                reset = false;
+                index = 0;
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Z80.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                runSimulation();
+            }
+        }
     }
-    
+
 }
