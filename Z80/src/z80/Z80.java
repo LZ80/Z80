@@ -343,6 +343,9 @@ public class Z80 {
                         case "101":
                             tempad = z8.L;
                             break;
+                        case "110":
+                            tempad = hexToDec(Memory[Integer.parseInt((decToHex(z8.H) + decToHex(z8.L)+""),16)]);
+                            break;
                     }
                     checksum = tempad + z8.A;
                     if (checksum > 127) {
@@ -357,7 +360,7 @@ public class Z80 {
                     index++;
                     z8.setFZero();
                     break;
-                case "sub": //resta el registro especificado a A y guarda el resultado en A
+                case "sub": //resta el registro especificado a A y gualrda el resultado en A
                     int tempsub = 0;
                     int checksub;
                     pos2 = req.substring(5, 8);
@@ -383,6 +386,9 @@ public class Z80 {
                             break;
                         case "101":
                             tempsub = z8.L;
+                            break;
+                        case "110":
+                            tempsub = hexToDec(Memory[Integer.parseInt((decToHex(z8.H) + decToHex(z8.L)+""),16)]);
                             break;
                     }
                     checksub = z8.A - tempsub;
@@ -429,6 +435,9 @@ public class Z80 {
                         case "101":
                             tempand = z8.L;
                             break;
+                        case "110":
+                            tempand = hexToDec(Memory[Integer.parseInt((decToHex(z8.H) + decToHex(z8.L)+""),16)]);
+                            break;
                     }
                     System.out.println(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand);
                     gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
@@ -464,6 +473,9 @@ public class Z80 {
                         case "101":
                             tempxor = z8.L;
                             break;
+                        case "110":
+                            tempxor = hexToDec(Memory[Integer.parseInt((decToHex(z8.H) + decToHex(z8.L)+""),16)]);
+                            break;
                     }
                     z8.A = (byte) z8.A ^ (byte) tempxor;
                     z8.checkAcc();
@@ -495,6 +507,9 @@ public class Z80 {
                             break;
                         case "101":
                             tempor = z8.L;
+                            break;
+                        case "110":
+                            tempor = hexToDec(Memory[Integer.parseInt((decToHex(z8.H) + decToHex(z8.L)+""),16)]);
                             break;
                     }
                     z8.A = (byte) z8.A | (byte) tempor;
@@ -528,6 +543,9 @@ public class Z80 {
                             break;
                         case "101":
                             tempcom = z8.L;
+                            break;
+                        case "110":
+                            tempcom = hexToDec(Memory[Integer.parseInt((decToHex(z8.H) + decToHex(z8.L)+""),16)]);
                             break;
                     }
                     checkcom = z8.A - tempcom;
@@ -666,15 +684,95 @@ public class Z80 {
                     break;
                 
                 case "adc": // suma el carry a A
-                    int carrys = Integer.valueOf(decToBin(z8.F).charAt(0));
-                    z8.A += carrys;
+                    int tempadc = 0;
+                    int checksumc;
+                    pos2 = req.substring(5, 8);
+                    
+                    switch (pos2) {
+                        case "111":
+                            tempadc = z8.A;
+                            break;
+                        case "000":
+                            tempadc = z8.B;
+                            break;
+                        case "001":
+                            tempadc = z8.C;
+                            break;
+                        case "010":
+                            tempadc = z8.D;
+                            break;
+                        case "011":
+                            tempadc = z8.E;
+                            break;
+                        case "100":
+                            tempadc = z8.H;
+                            break;
+                        case "101":
+                            tempadc = z8.L;
+                            break;
+                        case "110":
+                            tempadc = hexToDec(Memory[Integer.parseInt((decToHex(z8.H) + decToHex(z8.L)+""),16)]);
+                            break;
+                    }
+                    checksumc = tempadc + z8.A + binToDec(z8.Flags.charAt(7)+"");
+                    if (checksumc > 127) {
+                        checksumc -= 256;
+                        z8.Flags = z8.Flags.substring(0, 7) + "1";
+                        z8.setF();
+                    } else if (checksumc < -128) {
+                        checksumc += 256;
+                    }
+                    z8.A = checksumc;
+                    z8.checkAcc();
                     index++;
                     z8.setFZero();
                     break;
                 
                 case "sbc": // resta el carry a A
-                    int carry = Integer.valueOf(decToBin(z8.F).charAt(0));
-                    z8.A -= carry;
+                    int tempsubc = 0;
+                    int checksubc;
+                    pos2 = req.substring(5, 8);
+                    
+                    switch (pos2) {
+                        case "111":
+                            tempsubc = z8.A;
+                            break;
+                        case "000":
+                            tempsubc = z8.B;
+                            break;
+                        case "001":
+                            tempsubc = z8.C;
+                            break;
+                        case "010":
+                            tempsubc = z8.D;
+                            break;
+                        case "011":
+                            tempsubc = z8.E;
+                            break;
+                        case "100":
+                            tempsubc = z8.H;
+                            break;
+                        case "101":
+                            tempsubc = z8.L;
+                            break;
+                        case "110":
+                            tempsubc = hexToDec(Memory[Integer.parseInt((decToHex(z8.H) + decToHex(z8.L)+""),16)]);
+                            break;
+                    }
+                    checksubc = z8.A - tempsubc - binToDec(z8.Flags.charAt(7)+"");
+                    if (checksubc > 127) {
+                        checksubc -= 256;
+                        z8.Flags = z8.Flags.substring(0, 7) + "1";
+                        z8.setF();
+                    } else if (checksubc < -128) {
+                        checksubc += 256;
+                    }
+                    
+                    z8.A = checksubc;
+                    z8.checkAcc();
+                    z8.Flags = z8.Flags.substring(0, 6) + "1" + z8.Flags.substring(7);
+                    z8.setF();
+                    
                     index++;
                     break;
                 
