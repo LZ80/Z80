@@ -69,6 +69,7 @@ public class Z80 {
     Valor decimal guardado en un int para mayor facilidad de operación, en este formato están los registros por facilidad.
     los valores se encuentran entre 127 y -128
     */
+    
     static String hexToBin(String hex) {
         String binAddr = Integer.toBinaryString(Integer.parseInt(hex, 16));
         while (binAddr.length() < 8) {
@@ -118,14 +119,31 @@ public class Z80 {
     
     static Main gui;
     
-    public static boolean startSim = false;
-    public static boolean step = false;
-    public static boolean stepMode = false;
-    public static boolean reset = false;
-    public static int index = 0;
+    public static boolean startSim;
+    public static boolean step;
+    public static boolean resetStep;
+    public static boolean stepMode;
+    public static boolean reset;
+    public static int index;
     public static String state;
+    
+    public static void initializeVariables(){
+        startSim = false;
+        step = false;
+        resetStep = false;
+        stepMode = false;
+        reset = false;
+        index = 0;
+    }
+    
     public static void runSimulation(){
+        initializeVariables();
         while(!startSim){
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Z80.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         
         String memorytxt = ""; //Posición que ayuda a guardar los datos de el txt a el arregloque simula la memoria
@@ -138,7 +156,7 @@ public class Z80 {
         String temphl;
         String tempidx;
         int size;
-                //Indice que guarda la posicion en la memoria que se está leyendo
+        index = 0;        //Indice que guarda la posicion en la memoria que se está leyendo
                             // Se le llama como 
         boolean end = false;
         state = "";
@@ -181,6 +199,10 @@ public class Z80 {
         index = 0;
         
         while (!end) {
+            if(resetStep == true){
+                resetStep = false;
+                return;
+            }
             while(step){
                 try {
                     Thread.sleep(200);
@@ -188,6 +210,10 @@ public class Z80 {
                     Logger.getLogger(Z80.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 gui.checkStep();
+                if(resetStep == true){
+                    resetStep = false;
+                    return;
+                }
             }
             req = hexToBin(Memory[index]);
             System.out.println(Memory[index] + "(" + index + ")" + ": " + req);
@@ -331,7 +357,7 @@ public class Z80 {
                     index++;
                     z8.setFZero();
                     break;
-                case "sub": //resta el registro especificado a A y gualrda el resultado en A
+                case "sub": //resta el registro especificado a A y guarda el resultado en A
                     int tempsub = 0;
                     int checksub;
                     pos2 = req.substring(5, 8);
@@ -684,12 +710,8 @@ public class Z80 {
                 Logger.getLogger(Z80.class.getName()).log(Level.SEVERE, null, ex);
             }
             if(reset){
-                startSim = false;
-                step = false;
-                stepMode = false;
-                reset = false;
-                index = 0;
                 runSimulation();
+                initializeVariables();
             }
         }
     }

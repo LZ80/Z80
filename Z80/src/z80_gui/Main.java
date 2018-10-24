@@ -5,6 +5,8 @@
  */
 package z80_gui;
 import java.awt.event.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import z80.*;
 
 /**
@@ -329,6 +331,9 @@ public class Main extends javax.swing.JFrame {
     private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
         jTextArea1.setText("");
         Z80.reset = true;
+        if(Z80.stepMode == true){
+            Z80.resetStep = true;
+        }
     }//GEN-LAST:event_resetButtonActionPerformed
 
     private void stepButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stepButtonActionPerformed
