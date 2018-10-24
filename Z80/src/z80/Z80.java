@@ -241,6 +241,8 @@ public class Z80 {
                     state = "add";
                 } else if (req.equals("01110110")) {
                     state = "end";
+                } else if (req.equals("00110010")) {
+                    state = "L(**)a";
                 } else if (req.equals("11000010")) {
                     state = "jnz";
                 } else if (req.equals("11000011")) {
@@ -274,6 +276,16 @@ public class Z80 {
             System.out.println(state);
             gui.updateLogText(state+"\n");
             switch (state) {
+                case "L(**)a"://carga lo que haya en lo que apunte la sigiente posición de memoria
+                    String temp1;
+                    String temp2;
+                    index++;
+                    temp1 = Memory[index];
+                    index++; 
+                    temp2 = Memory[index];
+                    z8.A = hexToDec(Memory[Integer.parseInt((temp2 + temp1 + ""),16)]);
+                    index++;
+                    break;
                 case "jnz": //Jump si lo que está en el acumulador es negativo o 0
                     index++;
                     if ((decToBin(z8.F).charAt(0) == '1') || (decToBin(z8.F).charAt(1) == '1')) {
