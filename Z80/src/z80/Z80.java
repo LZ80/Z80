@@ -145,7 +145,6 @@ public class Z80 {
                 Logger.getLogger(Z80.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
         String memorytxt = ""; //Posición que ayuda a guardar los datos de el txt a el arregloque simula la memoria
         String req;       // Ayuda a guardar el registro actual completo
         String req5;      // Ayuda a guardar el registro actual de la posicion 0 a 5
@@ -288,7 +287,7 @@ public class Z80 {
                     break;
                 case "jnz": //Jump si lo que está en el acumulador es negativo o 0
                     index++;
-                    if ((decToBin(z8.F).charAt(0) == '1') || (decToBin(z8.F).charAt(1) == '1')) {
+                    if (((z8.Flags).charAt(0) == '1') || ((z8.Flags).charAt(1) == '1')) {
                         tempidx = Memory[index];
                         index++;
                         tempidx = Memory[index] + tempidx + "";
