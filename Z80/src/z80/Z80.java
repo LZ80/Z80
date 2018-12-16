@@ -847,6 +847,22 @@ public class Z80 {
                     end = true;
                     break;
             }
+            gui.updateAText(z8.A+"");
+            gui.updateBText(z8.B+"");
+            gui.updateCText(z8.C+"");
+            gui.updateDText(z8.D+"");
+            gui.updateEText(z8.E+"");
+            gui.updateHText(z8.H+"");
+            gui.updateLText(z8.L+"");
+            
+            gui.updateRegistersText(
+                    "A: "+z8.A+" B: "+z8.B+"\n"+
+                    "C: "+z8.C+" D: "+z8.D+"\n"+
+                    "E: "+z8.E+" H: "+z8.H+"\n"+
+                    "L: "+z8.L+"\n"+
+                    "-------------------------"+"\n"
+            );
+            
             if(stepMode){
                 step = true;
             }
