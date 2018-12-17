@@ -1418,6 +1418,7 @@ public class Z80 {
             gui.updateEText(z8.E+"");
             gui.updateHText(z8.H+"");
             gui.updateLText(z8.L+"");
+            gui.updateFText(z8.F+"");
             
             gui.updateRegistersText(
                     "A: "+z8.A+" B: "+z8.B+"\n"+
@@ -1460,7 +1461,7 @@ public class Z80 {
                     x = x+ ", "+Arr[i];
                 }
             }
-            if(Arr[i].equals("00")){
+            if(Arr[i].equals("00") && Arr[i-1].equals("00")){
                 count++;
             }
             if(count>5){
