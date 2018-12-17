@@ -126,6 +126,8 @@ public class Z80 {
     public static boolean reset;
     public static int index;
     public static String state;
+    public static String IXstate;
+    public static String IYstate;
     public static String input;
     
     public static void initializeVariables(){
@@ -156,8 +158,10 @@ public class Z80 {
         String pos2;      // Ayuda a guardar el código de un registro
         String temphl;
         String tempidx;
+        String tempidy;
         String rname1 = "";
         String rname2 = "";
+        int tempint;
         int size;
         index = 0;        //Indice que guarda la posicion en la memoria que se está leyendo
                             // Se le llama como 
@@ -247,6 +251,10 @@ public class Z80 {
                     state = "add";
                 } else if (req.equals("01110110")) {
                     state = "end";
+                } else if (req.equals("11011101")) {        //XI #DD
+                    state = "IX";
+                } else if (req.equals("11111101")) {        //YI #FD
+                    state = "IY";
                 } else if (req.equals("00110010")) {
                     state = "L(**)a";
                 } else if (req.equals("11000010")) {
@@ -839,7 +847,558 @@ public class Z80 {
                     
                     index++;
                     break;
-                
+                case "IX":
+                    req = hexToBin(Memory[index]);
+                    System.out.println(Memory[index] + "(" + index + ")" + ": " + req);
+                    req5 = req.substring(0, 5);
+                    req2 = req.substring(0, 2);
+                    req8 = req.substring(5);
+                    if(req.equals("00100001")){
+                        IXstate = "ldnix";   //ld ix,**: H21
+                    } else if (req.equals("00100010")){
+                        IXstate = "ldtix";  //ld (**),ix: H22
+                    } else if (req.equals("10000110")){
+                        IXstate = "add";    //add a,(ix+*): H86
+                    } else if (req.equals("10001110")){
+                        IXstate = "adc";    //adc a,(ix+*): H8E
+                    } else if (req.equals("10010110")){
+                        IXstate = "sub";    //sub a,(ix+*): H96
+                    } else if (req.equals("10011110")){
+                        IXstate = "sbc";    //sbc a,(ix+*): H9E
+                    } else if (req.equals("10100110")){
+                        IXstate = "and";    //and a,(ix+*): HA6
+                    } else if (req.equals("10001110")){
+                        IXstate = "xor";    //xor a,(ix+*): HAE
+                    } else if (req.equals("10001110")){
+                        IXstate = "or";    //or a,(ix+*): HB6
+                    } else if (req.equals("11101001")){
+                        IXstate = "jp";    //jp  (ix): HE9
+                    } else if (req5.equals("01110")){
+                        IXstate = "ldixr";    //ld (ix+*),r: 01110rrr
+                    } else if (req2.equals("01")&&req8.equals("110")){
+                        IXstate = "ldrix";    //ld r,(ix+*): 01rrr110
+                    } else {
+                        IXstate = "";
+                    }
+                    switch(IXstate) {
+                        case "ldnix":
+                            index++;
+                            tempidx = Memory[index];
+                            index++;
+                            tempidx = Memory[index] + tempidx + "";
+                            z8.IX = Integer.parseInt(tempidx, 16);
+                            z8.checkAcc();
+                            z8.setFZero();
+                            index++;
+                            break;
+                        case "ldtix":
+                            index++;
+                            tempidx = Memory[index];
+                            index++;
+                            tempidx = Memory[index] + tempidx + "";
+                            Memory[Integer.parseInt(tempidx, 16)] = Integer.toHexString(z8.IX % 256);
+                            Memory[Integer.parseInt(tempidx, 16)-1] = Integer.toHexString((z8.IX-(z8.IX % 256))/256);
+                            index++;
+                            break;
+                        case "add":
+                            index++;
+                            tempidx = Memory[index];
+                            index++;
+                            tempidx = Memory[index] + tempidx + "";
+                            int checksumix;
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidx, 16)]);
+                            checksumix = hexToDec(Memory[z8.IX + tempint]) + z8.A;
+                            gui.updateLogText("Suma: "+hexToDec(Memory[z8.IX + tempint])+"+"+z8.A+" ");
+                            if (checksumix > 127) {
+                                checksumix -= 256;
+                                z8.Flags = z8.Flags.substring(0, 7) + "1";
+                                z8.setF();
+                            } else if (checksumix < -128) {
+                                checksumix += 256;
+                            }
+                            z8.A = checksumix;
+                            gui.updateLogText("="+z8.A+"\n");
+                            z8.checkAcc();
+                            index++;
+                            z8.setFZero();
+                            break;
+                        case "adc":
+                            index++;
+                            tempidx = Memory[index];
+                            index++;
+                            tempidx = Memory[index] + tempidx + "";
+                            int checksumcix;
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidx, 16)]);
+                            checksumcix = hexToDec(Memory[z8.IX + tempint]) + z8.A + binToDec(z8.Flags.charAt(7)+"");
+                            gui.updateLogText("adc: " + hexToDec(Memory[z8.IX + tempint]) +" + "+ z8.A +" + "+ z8.Flags.charAt(7)+" ");
+                            if (checksumcix > 127) {
+                                checksumcix -= 256;
+                                z8.Flags = z8.Flags.substring(0, 7) + "1";
+                                z8.setF();
+                            } else if (checksumcix < -128) {
+                                checksumcix += 256;
+                            }
+                            z8.A = checksumcix;
+                            gui.updateLogText(" = "+z8.A+"\n");
+                            z8.checkAcc();
+                            index++;
+                            z8.setFZero();
+                            break;
+                        case "sub":
+                            index++;
+                            tempidx = Memory[index];
+                            index++;
+                            tempidx = Memory[index] + tempidx + "";
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidx, 16)]);
+                            int checksubix;
+                            checksubix = z8.A - hexToDec(Memory[z8.IX + tempint]);
+                            gui.updateLogText("Resta: "+z8.A+"-"+hexToDec(Memory[z8.IX + tempint])+" ");
+                            if (checksubix > 127) {
+                                checksubix -= 256;
+                                z8.Flags = z8.Flags.substring(0, 7) + "1";
+                                z8.setF();
+                            } else if (checksubix < -128) {
+                                checksubix += 256;
+                            }
+                    
+                            z8.A = checksubix;
+                            gui.updateLogText("="+z8.A+"\n");
+                            z8.checkAcc();
+                            z8.Flags = z8.Flags.substring(0, 6) + "1" + z8.Flags.substring(7);
+                            z8.setF();
+                    
+                            index++;
+                            break;
+                        case "sbc":
+                            index++;
+                            tempidx = Memory[index];
+                            index++;
+                            tempidx = Memory[index] + tempidx + "";
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidx, 16)]);
+                            int checksbcix;
+                            checksbcix = z8.A - hexToDec(Memory[z8.IX + tempint]) - binToDec(z8.Flags.charAt(7)+"");
+                            gui.updateLogText("sbc: " + hexToDec(Memory[z8.IX + tempint]) +" - "+ z8.A +" - "+ z8.Flags.charAt(7)+" ");
+                            if (checksbcix > 127) {
+                                checksbcix -= 256;
+                                z8.Flags = z8.Flags.substring(0, 7) + "1";
+                                z8.setF();
+                            } else if (checksbcix < -128) {
+                                checksbcix += 256;
+                        }
+                    
+                            z8.A = checksbcix;
+                            gui.updateLogText(" = "+z8.A+"\n");
+                            z8.checkAcc();
+                            z8.Flags = z8.Flags.substring(0, 6) + "1" + z8.Flags.substring(7);
+                            z8.setF();
+                    
+                            index++;
+                            break;
+                        case "and":
+                            index++;
+                            tempidx = Memory[index];
+                            index++;
+                            tempidx = Memory[index] + tempidx + "";
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidx, 16)]);
+                            int tempandix = hexToDec(Memory[z8.IX + tempint]);
+                            System.out.println(z8.A + " " + tempandix + " " + (byte) z8.A + " " + (byte) tempandix);
+                            //gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
+                            gui.updateLogText("And: "+z8.A+"&"+tempandix+" ");
+                            z8.A = z8.A & tempandix;
+                            gui.updateLogText("="+z8.A+"\n");
+                            z8.checkAcc();
+                            index++;
+                            z8.setFZero();
+                            break;
+                        case "xor":
+                            index++;
+                            tempidx = Memory[index];
+                            index++;
+                            tempidx = Memory[index] + tempidx + "";
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidx, 16)]);
+                            int tempxorix = hexToDec(Memory[z8.IX + tempint]);
+                            System.out.println(z8.A + " " + tempxorix + " " + (byte) z8.A + " " + (byte) tempxorix);
+                            //gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
+                            gui.updateLogText("And: "+z8.A+"&"+tempxorix+" ");
+                            z8.A = z8.A ^ tempxorix;
+                            gui.updateLogText("="+z8.A+"\n");
+                            z8.checkAcc();
+                            index++;
+                            z8.setFZero();
+                            break;
+                        case "or":
+                            index++;
+                            tempidx = Memory[index];
+                            index++;
+                            tempidx = Memory[index] + tempidx + "";
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidx, 16)]);
+                            int temporix = hexToDec(Memory[z8.IX + tempint]);
+                            System.out.println(z8.A + " " + temporix + " " + (byte) z8.A + " " + (byte) temporix);
+                            //gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
+                            gui.updateLogText("And: "+z8.A+"&"+temporix+" ");
+                            z8.A = z8.A | temporix;
+                            gui.updateLogText("="+z8.A+"\n");
+                            z8.checkAcc();
+                            index++;
+                            z8.setFZero();
+                            break;
+                        case "jp":
+                            index = z8.IX;
+                            z8.setFZero();
+                            break;
+                        case "ldixr":
+                            index++;
+                            tempint = Integer.parseInt(Memory[index],16);
+                            int templdix = 0;
+                            pos2 = req.substring(5, 8);
+                    
+                            switch (pos2) {
+                                case "111":
+                                    templdix = z8.A;
+                                    break;
+                                case "000":
+                                    templdix = z8.B;
+                                    break;
+                                case "001":
+                                    templdix = z8.C;
+                                    break;
+                                case "010":
+                                    templdix = z8.D;
+                                    break;
+                                case "011":
+                                    templdix = z8.E;
+                                    break;
+                                case "100":
+                                    templdix = z8.H;
+                                    break;
+                                case "101":
+                                    templdix = z8.L;
+                                    break;
+                            }
+                            Memory[z8.IX + tempint] = decToHex(templdix);
+                            z8.checkAcc();
+                            z8.setFZero();
+                            index++;
+                            break;
+                        case "ldrix":
+                            index++;
+                            tempint = Integer.parseInt(Memory[index],16);
+                            int templdrix = Integer.parseInt(Memory[z8.IX + tempint],16);
+                            pos1 = req.substring(2, 5);
+                            
+                            switch (pos1) {
+                                case "111":
+                                    z8.A = templdrix;
+                                    rname1 = "A";
+                                    z8.checkAcc();
+                                    break;
+                                case "000":
+                                    z8.B = templdrix;
+                                    rname1 = "B";
+                                    break;
+                                case "001":
+                                    z8.C = templdrix;
+                                    rname1 = "C";
+                                    break;
+                                case "010":
+                                    z8.D = templdrix;
+                                    rname1 = "D";
+                                    break;
+                                case "011":
+                                    z8.E = templdrix;
+                                    rname1 = "E";
+                                    break;
+                                case "100":
+                                    z8.H = templdrix;
+                                    rname1 = "H";
+                                break;
+                                case "101":
+                                    z8.L = templdrix;
+                                    rname1 = "L";
+                                    break;
+                            }
+                            z8.checkAcc();
+                            z8.setFZero();
+                            index++;
+                            break;
+                    }
+                    break;
+                case "IY":
+                    req = hexToBin(Memory[index]);
+                    System.out.println(Memory[index] + "(" + index + ")" + ": " + req);
+                    req5 = req.substring(0, 5);
+                    req2 = req.substring(0, 2);
+                    req8 = req.substring(5);
+                    if(req.equals("00100001")){
+                        IYstate = "ldniy";   //ld iy,**: H21
+                    } else if (req.equals("00100010")){
+                        IYstate = "ldtiy";  //ld (**),iy: H22
+                    } else if (req.equals("10000110")){
+                        IYstate = "add";    //add a,(iy+*): H86
+                    } else if (req.equals("10001110")){
+                        IYstate = "adc";    //adc a,(iy+*): H8E
+                    } else if (req.equals("10010110")){
+                        IYstate = "sub";    //sub a,(iy+*): H96
+                    } else if (req.equals("10011110")){
+                        IYstate = "sbc";    //sbc a,(iy+*): H9E
+                    } else if (req.equals("10100110")){
+                        IYstate = "and";    //and a,(iy+*): HA6
+                    } else if (req.equals("10001110")){
+                        IYstate = "xor";    //xor a,(iy+*): HAE
+                    } else if (req.equals("10001110")){
+                        IYstate = "or";    //or a,(iy+*): HB6
+                    } else if (req.equals("11101001")){
+                        IYstate = "jp";    //jp  (iy): HE9
+                    } else if (req5.equals("01110")){
+                        IYstate = "ldiyr";    //ld (iy+*),r: 01110rrr
+                    } else if (req2.equals("01")&&req8.equals("110")){
+                        IYstate = "ldriy";    //ld r,(iy+*): 01rrr110
+                    } else {
+                        IYstate = "";
+                    }
+                    switch(IYstate) {
+                        case "ldniy":
+                            index++;
+                            tempidy = Memory[index];
+                            index++;
+                            tempidy = Memory[index] + tempidy + "";
+                            z8.IY = Integer.parseInt(tempidy, 16);
+                            z8.checkAcc();
+                            z8.setFZero();
+                            index++;
+                            break;
+                        case "ldtiy":
+                            index++;
+                            tempidy = Memory[index];
+                            index++;
+                            tempidy = Memory[index] + tempidy + "";
+                            Memory[Integer.parseInt(tempidy, 16)] = Integer.toHexString(z8.IY % 256);
+                            Memory[Integer.parseInt(tempidy, 16)-1] = Integer.toHexString((z8.IY-(z8.IY % 256))/256);
+                            index++;
+                            break;
+                        case "add":
+                            index++;
+                            tempidy = Memory[index];
+                            index++;
+                            tempidy = Memory[index] + tempidy + "";
+                            int checksumiy;
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidy, 16)]);
+                            checksumiy = hexToDec(Memory[z8.IY + tempint]) + z8.A;
+                            gui.updateLogText("Suma: "+hexToDec(Memory[z8.IY + tempint])+"+"+z8.A+" ");
+                            if (checksumiy > 127) {
+                                checksumiy -= 256;
+                                z8.Flags = z8.Flags.substring(0, 7) + "1";
+                                z8.setF();
+                            } else if (checksumiy < -128) {
+                                checksumiy += 256;
+                            }
+                            z8.A = checksumiy;
+                            gui.updateLogText("="+z8.A+"\n");
+                            z8.checkAcc();
+                            index++;
+                            z8.setFZero();
+                            break;
+                        case "adc":
+                            index++;
+                            tempidy = Memory[index];
+                            index++;
+                            tempidy = Memory[index] + tempidy + "";
+                            int checksumciy;
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidy, 16)]);
+                            checksumciy = hexToDec(Memory[z8.IY + tempint]) + z8.A + binToDec(z8.Flags.charAt(7)+"");
+                            gui.updateLogText("adc: " + hexToDec(Memory[z8.IY + tempint]) +" + "+ z8.A +" + "+ z8.Flags.charAt(7)+" ");
+                            if (checksumciy > 127) {
+                                checksumciy -= 256;
+                                z8.Flags = z8.Flags.substring(0, 7) + "1";
+                                z8.setF();
+                            } else if (checksumciy < -128) {
+                                checksumciy += 256;
+                            }
+                            z8.A = checksumciy;
+                            gui.updateLogText(" = "+z8.A+"\n");
+                            z8.checkAcc();
+                            index++;
+                            z8.setFZero();
+                            break;
+                        case "sub":
+                            index++;
+                            tempidy = Memory[index];
+                            index++;
+                            tempidy = Memory[index] + tempidy + "";
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidy, 16)]);
+                            int checksubiy;
+                            checksubiy = z8.A - hexToDec(Memory[z8.IY + tempint]);
+                            gui.updateLogText("Resta: "+z8.A+"-"+hexToDec(Memory[z8.IY + tempint])+" ");
+                            if (checksubiy > 127) {
+                                checksubiy -= 256;
+                                z8.Flags = z8.Flags.substring(0, 7) + "1";
+                                z8.setF();
+                            } else if (checksubiy < -128) {
+                                checksubiy += 256;
+                            }
+                    
+                            z8.A = checksubiy;
+                            gui.updateLogText("="+z8.A+"\n");
+                            z8.checkAcc();
+                            z8.Flags = z8.Flags.substring(0, 6) + "1" + z8.Flags.substring(7);
+                            z8.setF();
+                    
+                            index++;
+                            break;
+                        case "sbc":
+                            index++;
+                            tempidy = Memory[index];
+                            index++;
+                            tempidy = Memory[index] + tempidy + "";
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidy, 16)]);
+                            int checksbciy;
+                            checksbciy = z8.A - hexToDec(Memory[z8.IY + tempint]) - binToDec(z8.Flags.charAt(7)+"");
+                            gui.updateLogText("sbc: " + hexToDec(Memory[z8.IY + tempint]) +" - "+ z8.A +" - "+ z8.Flags.charAt(7)+" ");
+                            if (checksbciy > 127) {
+                                checksbciy -= 256;
+                                z8.Flags = z8.Flags.substring(0, 7) + "1";
+                                z8.setF();
+                            } else if (checksbciy < -128) {
+                                checksbciy += 256;
+                        }
+                    
+                            z8.A = checksbciy;
+                            gui.updateLogText(" = "+z8.A+"\n");
+                            z8.checkAcc();
+                            z8.Flags = z8.Flags.substring(0, 6) + "1" + z8.Flags.substring(7);
+                            z8.setF();
+                    
+                            index++;
+                            break;
+                        case "and":
+                            index++;
+                            tempidy = Memory[index];
+                            index++;
+                            tempidy = Memory[index] + tempidy + "";
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidy, 16)]);
+                            int tempandiy = hexToDec(Memory[z8.IY + tempint]);
+                            System.out.println(z8.A + " " + tempandiy + " " + (byte) z8.A + " " + (byte) tempandiy);
+                            //gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
+                            gui.updateLogText("And: "+z8.A+"&"+tempandiy+" ");
+                            z8.A = z8.A & tempandiy;
+                            gui.updateLogText("="+z8.A+"\n");
+                            z8.checkAcc();
+                            index++;
+                            z8.setFZero();
+                            break;
+                        case "xor":
+                            index++;
+                            tempidy = Memory[index];
+                            index++;
+                            tempidy = Memory[index] + tempidy + "";
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidy, 16)]);
+                            int tempxoriy = hexToDec(Memory[z8.IY + tempint]);
+                            System.out.println(z8.A + " " + tempxoriy + " " + (byte) z8.A + " " + (byte) tempxoriy);
+                            //gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
+                            gui.updateLogText("And: "+z8.A+"&"+tempxoriy+" ");
+                            z8.A = z8.A ^ tempxoriy;
+                            gui.updateLogText("="+z8.A+"\n");
+                            z8.checkAcc();
+                            index++;
+                            z8.setFZero();
+                            break;
+                        case "or":
+                            index++;
+                            tempidy = Memory[index];
+                            index++;
+                            tempidy = Memory[index] + tempidy + "";
+                            tempint = hexToDec(Memory[Integer.parseInt(tempidy, 16)]);
+                            int temporiy = hexToDec(Memory[z8.IY + tempint]);
+                            System.out.println(z8.A + " " + temporiy + " " + (byte) z8.A + " " + (byte) temporiy);
+                            //gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
+                            gui.updateLogText("And: "+z8.A+"&"+temporiy+" ");
+                            z8.A = z8.A | temporiy;
+                            gui.updateLogText("="+z8.A+"\n");
+                            z8.checkAcc();
+                            index++;
+                            z8.setFZero();
+                            break;
+                        case "jp":
+                            index = z8.IY;
+                            z8.setFZero();
+                            break;
+                        case "ldiyr":
+                            index++;
+                            tempint = Integer.parseInt(Memory[index],16);
+                            int templdiy = 0;
+                            pos2 = req.substring(5, 8);
+                    
+                            switch (pos2) {
+                                case "111":
+                                    templdiy = z8.A;
+                                    break;
+                                case "000":
+                                    templdiy = z8.B;
+                                    break;
+                                case "001":
+                                    templdiy = z8.C;
+                                    break;
+                                case "010":
+                                    templdiy = z8.D;
+                                    break;
+                                case "011":
+                                    templdiy = z8.E;
+                                    break;
+                                case "100":
+                                    templdiy = z8.H;
+                                    break;
+                                case "101":
+                                    templdiy = z8.L;
+                                    break;
+                            }
+                            Memory[z8.IY + tempint] = decToHex(templdiy);
+                            z8.checkAcc();
+                            z8.setFZero();
+                            index++;
+                            break;
+                        case "ldriy":
+                            index++;
+                            tempint = Integer.parseInt(Memory[index],16);
+                            int templdriy = Integer.parseInt(Memory[z8.IY + tempint],16);
+                            pos1 = req.substring(2, 5);
+                            
+                            switch (pos1) {
+                                case "111":
+                                    z8.A = templdriy;
+                                    rname1 = "A";
+                                    z8.checkAcc();
+                                    break;
+                                case "000":
+                                    z8.B = templdriy;
+                                    rname1 = "B";
+                                    break;
+                                case "001":
+                                    z8.C = templdriy;
+                                    rname1 = "C";
+                                    break;
+                                case "010":
+                                    z8.D = templdriy;
+                                    rname1 = "D";
+                                    break;
+                                case "011":
+                                    z8.E = templdriy;
+                                    rname1 = "E";
+                                    break;
+                                case "100":
+                                    z8.H = templdriy;
+                                    rname1 = "H";
+                                break;
+                                case "101":
+                                    z8.L = templdriy;
+                                    rname1 = "L";
+                                    break;
+                            }
+                            z8.checkAcc();
+                            z8.setFZero();
+                            index++;
+                            break;
+                    }
+                    break;
                 case "end": // codigo finaliza la ejecución
                     System.out.println("End");
                     gui.updateLogText("End"+"\n");
