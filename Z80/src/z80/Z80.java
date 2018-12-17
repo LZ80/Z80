@@ -166,6 +166,7 @@ public class Z80 {
         String rname1 = "";
         String rname2 = "";
         int tempint;
+        int tempint2;
         int size;
         index = 0;        //Indice que guarda la posicion en la memoria que se está leyendo
                             // Se le llama como 
@@ -897,6 +898,8 @@ public class Z80 {
                         IXstate = "ldtix";  //ld (**),ix: H22
                     } else if (req.equals("10000110")){
                         IXstate = "add";    //add a,(ix+*): H86
+                    } else if (req.equals("00110110")){
+                        IXstate = "ldnn";    //ld (ix+*),*: H36
                     } else if (req.equals("10001110")){
                         IXstate = "adc";    //adc a,(ix+*): H8E
                     } else if (req.equals("10010110")){
@@ -936,6 +939,14 @@ public class Z80 {
                             tempidx = Memory[index] + tempidx + "";
                             Memory[Integer.parseInt(tempidx, 16)] = Integer.toHexString(z8.IX % 256);
                             Memory[Integer.parseInt(tempidx, 16)-1] = Integer.toHexString((z8.IX-(z8.IX % 256))/256);
+                            index++;
+                            break;
+                        case "ldnn":        //LD (IX+d), n
+                            index++;
+                            tempint = hexToDec(Memory[index]);  //d
+                            index++;
+                            tempint2 = hexToDec(Memory[index]); //n
+                            Memory[z8.IX + tempint] = decToHex(tempint2);
                             index++;
                             break;
                         case "add":
@@ -1185,6 +1196,8 @@ public class Z80 {
                         IYstate = "ldniy";   //ld iy,**: H21
                     } else if (req.equals("00100010")){
                         IYstate = "ldtiy";  //ld (**),iy: H22
+                    } else if (req.equals("00110110")){
+                        IYstate = "ldnn";    //ld (iy+*),*: H36
                     } else if (req.equals("10000110")){
                         IYstate = "add";    //add a,(iy+*): H86
                     } else if (req.equals("10001110")){
@@ -1217,6 +1230,14 @@ public class Z80 {
                             z8.IY = Integer.parseInt(tempidy, 16);
                             z8.checkAcc();
                             z8.setFZero();
+                            index++;
+                            break;
+                        case "ldnn":        //LD (IX+d), n
+                            index++;
+                            tempint = hexToDec(Memory[index]);  //d
+                            index++;
+                            tempint2 = hexToDec(Memory[index]); //n
+                            Memory[z8.IY + tempint] = decToHex(tempint2);
                             index++;
                             break;
                         case "ldtiy":
