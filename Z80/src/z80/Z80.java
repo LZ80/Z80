@@ -1494,7 +1494,7 @@ public class Z80 {
             gui.updateIYText(z8.IY+"");
             
             gui.updateRegistersText(
-                    currentIteration+"\n"+
+                    currentIteration+")\n"+
                     "A: "+z8.A+" B: "+z8.B+"\n"+
                     "C: "+z8.C+" D: "+z8.D+"\n"+
                     "E: "+z8.E+" H: "+z8.H+"\n"+
@@ -1507,7 +1507,7 @@ public class Z80 {
             );
             
             gui.updateIXIYHistoryText(
-                    currentIteration+"\n"+
+                    currentIteration+")\n"+
                     "IX: "+z8.IX+"\n"+
                     "IY: "+z8.IY+"\n"+
                     "------------"+"\n"
@@ -1515,7 +1515,7 @@ public class Z80 {
             
             gui.updateOutputText(Memory[65535]+"");
             gui.updateOutputHistoryText(
-                    currentIteration+"\n"+
+                    currentIteration+")\n"+
                     "Output: "+Memory[65535]+"\n"+
                     "---------------"+"\n"
             );
