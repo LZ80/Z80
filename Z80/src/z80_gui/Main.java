@@ -765,6 +765,10 @@ public class Main extends javax.swing.JFrame {
     private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
         jTextArea1.setText("");
         jTextArea2.setText("");
+        jTextArea3.setText("");
+        jTextArea4.setText("");
+        jTextArea5.setText("");
+        jTextArea6.setText("");
         jTextField1.setText("0");
         jTextField2.setText("0");
         jTextField3.setText("0");
@@ -772,6 +776,11 @@ public class Main extends javax.swing.JFrame {
         jTextField5.setText("0");
         jTextField6.setText("0");
         jTextField7.setText("0");
+        jTextField8.setText("00");
+        jTextField9.setText("00");
+        jTextField10.setText("");
+        jTextField11.setText("0");
+        jTextField12.setText("0");
         Z80.reset = true;
         if(Z80.stepMode == true){
             Z80.resetStep = true;
