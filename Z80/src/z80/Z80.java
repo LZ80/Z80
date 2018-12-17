@@ -126,6 +126,7 @@ public class Z80 {
     public static boolean reset;
     public static int index;
     public static String state;
+    public static String input;
     
     public static void initializeVariables(){
         startSim = false;
@@ -134,6 +135,7 @@ public class Z80 {
         stepMode = false;
         reset = false;
         index = 0;
+        input = "00";
     }
     
     public static void runSimulation(){
@@ -196,9 +198,12 @@ public class Z80 {
                 size++;
             }
         }
-
-        index = 0;
         
+        index = 0;
+        Memory[65534] = input;
+        
+        System.out.println("input");
+        System.out.println(input);
         while (!end) {
             if(resetStep == true){
                 resetStep = false;
@@ -863,6 +868,14 @@ public class Z80 {
                     "-------------------------"+"\n"
             );
             
+            gui.updateMemoryText(
+                    memoryToString(Memory)
+            );
+            
+            gui.updateOutputText(Memory[65535]+"");
+            
+            //65535 => out / 65534 => in
+            
             if(stepMode){
                 step = true;
             }
@@ -870,6 +883,33 @@ public class Z80 {
         
         System.out.println(z8.A);
         gui.updateLogText(z8.A+"\n");
+    }
+    
+    public static String memoryToString(String[] Arr){
+        
+        String x = "";
+        int count = 0;
+        for(int i =0; i<Arr.length; i++){
+            if(i==1){
+                x = Arr[i];
+            } else if(i%11==0){
+                x = x + ", "+Arr[i]+"\n";
+            } else {
+                if((i-1)%11==0){
+                    x = x + Arr[i];
+                } else {
+                    x = x+ ", "+Arr[i];
+                }
+            }
+            if(Arr[i].equals("00")){
+                count++;
+            }
+            if(count>5){
+                return x+"...\n"+Arr[65534]+", "+Arr[65535];
+            }
+        }
+        
+        return x;
     }
     
     public static void main(String[] args) {
