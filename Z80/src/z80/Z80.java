@@ -694,6 +694,7 @@ public class Z80 {
                             //gui.updateLogText(temphl + "<-"+"\n");
                             Memory[Integer.parseInt(temphl, 2)] = decToHex(templr);
                             z8.setFZero();
+                            z8.checkAcc();
                             rname1 = "(HL)";
                             break;
                     }
@@ -749,6 +750,7 @@ public class Z80 {
                     gui.updateLogText("load:" + rname1 + " <- " + Memory[index]+"H"+"\n");
                     index++;
                     z8.setFZero();
+                    z8.checkAcc();
                     break;
                 
                 case "adc": // suma el carry a A
