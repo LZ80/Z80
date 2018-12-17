@@ -131,6 +131,7 @@ public class Z80 {
     public static String IXstate;
     public static String IYstate;
     public static String input;
+    public static int currentIteration;
     
     public static void initializeVariables(){
         startSim = false;
@@ -140,6 +141,7 @@ public class Z80 {
         reset = false;
         index = 0;
         input = "00";
+        currentIteration = 0;
     }
     
     public static void runSimulation(){
@@ -187,7 +189,7 @@ public class Z80 {
                 memorytxt = memorytxt + st;
             }            
             System.out.println("Memory " + memorytxt);
-            gui.updateLogText("Memory: "+"\n"+memorytxt+"\n");
+            gui.updateLogDevText("Memory: "+"\n"+memorytxt+"\n");
         } catch (Exception e) {
             System.out.println("Error Uploading File");
             gui.updateLogText("Error Uploading File"+"\n");
@@ -210,7 +212,10 @@ public class Z80 {
         
         System.out.println("input");
         System.out.println(input);
+        
+        currentIteration = 0;
         while (!end) {
+            currentIteration++;
             if(resetStep == true){
                 resetStep = false;
                 return;
@@ -292,8 +297,8 @@ public class Z80 {
                 }
             }
             System.out.println(state);
-            gui.updateLogText("index = "+index+"\n");
-            gui.updateLogText(state+": "+Memory[index]+"H"+"\n");
+            gui.updateLogDevText(currentIteration+")"+"\n"+"index = "+index+"\n");
+            gui.updateLogDevText(state+": "+Memory[index]+"H"+"\n");
             switch (state) {
                 case "L(**)a"://carga lo que haya en lo que apunte la sigiente posición de memoria
                     String temp1;
@@ -305,6 +310,7 @@ public class Z80 {
                     z8.A = hexToDec(Memory[Integer.parseInt((temp2 + temp1 + ""),16)]);
                     index++;
                     gui.updateLogText("carga en A<- "+z8.A+"\n");
+                    gui.updateLogDevText("carga en A<- "+z8.A+"\n");
                     break;
                 case "jnz": //Jump si lo que está en el acumulador es negativo o 0
                     if (((z8.Flags).charAt(0) == '1') || ((z8.Flags).charAt(1) == '1')) {
@@ -314,11 +320,13 @@ public class Z80 {
                         tempidx = Memory[index] + tempidx + "";
                         index = Integer.parseInt(tempidx, 16);
                         gui.updateLogText("Salto a "+tempidx+"H"+"\n");
+                        gui.updateLogDevText("Salto a "+tempidx+"H"+"\n");
                     } else {
                         index++;
                         index++;
                         index++;
                         gui.updateLogText("No hay salto"+"\n");
+                        gui.updateLogDevText("No hay salto"+"\n");
                     }
                     z8.setFZero();
                     break;
@@ -329,6 +337,7 @@ public class Z80 {
                     tempidx = Memory[index] + tempidx + "";
                     index = Integer.parseInt(tempidx, 16);
                     gui.updateLogText("Salto a "+tempidx+"H"+"\n");
+                    gui.updateLogDevText("Salto a "+tempidx+"H"+"\n");
                     z8.setFZero();
                     break;
                 case "jz": //Jump si el acumulador es 0;
@@ -339,11 +348,13 @@ public class Z80 {
                         tempidx = Memory[index] + tempidx + "";
                         index = Integer.parseInt(tempidx, 16);
                         gui.updateLogText("Salto a "+tempidx+"H"+"\n");
+                        gui.updateLogDevText("Salto a "+tempidx+"H"+"\n");
                     } else {
                         index++;
                         index++;
                         index++;
                         gui.updateLogText("No hay salto "+"\n");
+                        gui.updateLogDevText("No hay salto "+"\n");
                     }
                     z8.setFZero();
                     break;
@@ -354,6 +365,7 @@ public class Z80 {
                     z8.H = binToDec(Memory[index]);
                     index++;
                     gui.updateLogText("Carga a HL"+Memory[index-1]+Memory[index-2]+"H"+"\n");
+                    gui.updateLogDevText("Carga a HL"+Memory[index-1]+Memory[index-2]+"H"+"\n");
                     z8.setFZero();
                     break;
                 case "add": // suma a con el registro especificado
@@ -389,6 +401,7 @@ public class Z80 {
                     }
                     checksum = tempad + z8.A;
                     gui.updateLogText("Suma: "+tempad+"+"+z8.A+" ");
+                    gui.updateLogDevText("Suma: "+tempad+"+"+z8.A+" ");
                     if (checksum > 127) {
                         checksum -= 256;
                         z8.Flags = z8.Flags.substring(0, 7) + "1";
@@ -398,6 +411,7 @@ public class Z80 {
                     }
                     z8.A = checksum;
                     gui.updateLogText("="+z8.A+"\n");
+                    gui.updateLogDevText("="+z8.A+"\n");
                     z8.checkAcc();
                     index++;
                     z8.setFZero();
@@ -435,6 +449,7 @@ public class Z80 {
                     }
                     checksub = z8.A - tempsub;
                     gui.updateLogText("Resta: "+z8.A+"-"+tempsub+" ");
+                    gui.updateLogDevText("Resta: "+z8.A+"-"+tempsub+" ");
                     if (checksub > 127) {
                         checksub -= 256;
                         z8.Flags = z8.Flags.substring(0, 7) + "1";
@@ -445,6 +460,7 @@ public class Z80 {
                     
                     z8.A = checksub;
                     gui.updateLogText("="+z8.A+"\n");
+                    gui.updateLogDevText("="+z8.A+"\n");
                     z8.checkAcc();
                     z8.Flags = z8.Flags.substring(0, 6) + "1" + z8.Flags.substring(7);
                     z8.setF();
@@ -454,6 +470,7 @@ public class Z80 {
                 case "and": //Operación and entre A y el registro especificado, se guarda en A
                     System.out.println("I and");
                     gui.updateLogText("I and"+"\n");
+                    gui.updateLogDevText("I and"+"\n");
                     int tempand = 0;
                     pos2 = req.substring(5, 8);
                     
@@ -486,8 +503,10 @@ public class Z80 {
                     System.out.println(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand);
                     //gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
                     gui.updateLogText("And: "+z8.A+"&"+tempand+" ");
+                    gui.updateLogDevText("And: "+z8.A+"&"+tempand+" ");
                     z8.A = z8.A & tempand;
                     gui.updateLogText("="+z8.A+"\n");
+                    gui.updateLogDevText("="+z8.A+"\n");
                     z8.checkAcc();
                     index++;
                     z8.setFZero();
@@ -524,8 +543,10 @@ public class Z80 {
                             break;
                     }
                     gui.updateLogText("Xor: "+z8.A+"^"+tempxor+" ");
+                    gui.updateLogDevText("Xor: "+z8.A+"^"+tempxor+" ");
                     z8.A = z8.A ^ tempxor;
                     gui.updateLogText("="+z8.A+"\n");
+                    gui.updateLogDevText("="+z8.A+"\n");
                     z8.checkAcc();
                     index++;
                     z8.setFZero();
@@ -561,8 +582,10 @@ public class Z80 {
                             break;
                     }
                     gui.updateLogText("Xor: "+z8.A+"^"+tempor+" ");
+                    gui.updateLogDevText("Xor: "+z8.A+"^"+tempor+" ");
                     z8.A = z8.A | tempor;
                     gui.updateLogText("="+z8.A+"\n");
+                    gui.updateLogDevText("="+z8.A+"\n");
                     z8.checkAcc();
                     index++;
                     z8.setFZero();
@@ -600,6 +623,7 @@ public class Z80 {
                     }
                     checkcom = z8.A - tempcom;
                     gui.updateLogText("Compares: "+z8.A+"and"+tempcom+"\n");
+                    gui.updateLogDevText("Compares: "+z8.A+"and"+tempcom+"\n");
                     if (checkcom > 127) {
                         checkcom -= 256;
                         z8.Flags = z8.Flags.substring(0, 7) + "1";
@@ -705,6 +729,7 @@ public class Z80 {
                             break;
                     }
                     gui.updateLogText("load: " +  " (" + rname1 + " <- " + rname2 + ")"+"\n");
+                    gui.updateLogDevText("load: " +  " (" + rname1 + " <- " + rname2 + ")"+"\n");
                     index++;
                     break;
                 case "ldn": // Guarda en elregistro R el valor de la siguiente posición de memoria
@@ -754,6 +779,7 @@ public class Z80 {
                             break;
                     }
                     gui.updateLogText("load:" + rname1 + " <- " + Memory[index]+"H"+"\n");
+                    gui.updateLogDevText("load:" + rname1 + " <- " + Memory[index]+"H"+"\n");
                     index++;
                     z8.setFZero();
                     z8.checkAcc();
@@ -792,6 +818,7 @@ public class Z80 {
                     }
                     checksumc = tempadc + z8.A + binToDec(z8.Flags.charAt(7)+"");
                     gui.updateLogText("adc: " + tempadc +" + "+ z8.A +" + "+ z8.Flags.charAt(7)+" ");
+                    gui.updateLogDevText("adc: " + tempadc +" + "+ z8.A +" + "+ z8.Flags.charAt(7)+" ");
                     if (checksumc > 127) {
                         checksumc -= 256;
                         z8.Flags = z8.Flags.substring(0, 7) + "1";
@@ -801,6 +828,7 @@ public class Z80 {
                     }
                     z8.A = checksumc;
                     gui.updateLogText(" = "+z8.A+"\n");
+                    gui.updateLogDevText(" = "+z8.A+"\n");
                     z8.checkAcc();
                     index++;
                     z8.setFZero();
@@ -839,6 +867,7 @@ public class Z80 {
                     }
                     checksubc = z8.A - tempsubc - binToDec(z8.Flags.charAt(7)+"");
                     gui.updateLogText("sbc: " + tempsubc +" - "+ z8.A +" - "+ z8.Flags.charAt(7)+" ");
+                    gui.updateLogDevText("sbc: " + tempsubc +" - "+ z8.A +" - "+ z8.Flags.charAt(7)+" ");
                     if (checksubc > 127) {
                         checksubc -= 256;
                         z8.Flags = z8.Flags.substring(0, 7) + "1";
@@ -849,6 +878,7 @@ public class Z80 {
                     
                     z8.A = checksubc;
                     gui.updateLogText(" = "+z8.A+"\n");
+                    gui.updateLogDevText(" = "+z8.A+"\n");
                     z8.checkAcc();
                     z8.Flags = z8.Flags.substring(0, 6) + "1" + z8.Flags.substring(7);
                     z8.setF();
@@ -917,6 +947,7 @@ public class Z80 {
                             tempint = hexToDec(Memory[Integer.parseInt(tempidx, 16)]);
                             checksumix = hexToDec(Memory[z8.IX + tempint]) + z8.A;
                             gui.updateLogText("Suma: "+hexToDec(Memory[z8.IX + tempint])+"+"+z8.A+" ");
+                            gui.updateLogDevText("Suma: "+hexToDec(Memory[z8.IX + tempint])+"+"+z8.A+" ");
                             if (checksumix > 127) {
                                 checksumix -= 256;
                                 z8.Flags = z8.Flags.substring(0, 7) + "1";
@@ -926,6 +957,7 @@ public class Z80 {
                             }
                             z8.A = checksumix;
                             gui.updateLogText("="+z8.A+"\n");
+                            gui.updateLogDevText("="+z8.A+"\n");
                             z8.checkAcc();
                             index++;
                             z8.setFZero();
@@ -939,6 +971,7 @@ public class Z80 {
                             tempint = hexToDec(Memory[Integer.parseInt(tempidx, 16)]);
                             checksumcix = hexToDec(Memory[z8.IX + tempint]) + z8.A + binToDec(z8.Flags.charAt(7)+"");
                             gui.updateLogText("adc: " + hexToDec(Memory[z8.IX + tempint]) +" + "+ z8.A +" + "+ z8.Flags.charAt(7)+" ");
+                            gui.updateLogDevText("adc: " + hexToDec(Memory[z8.IX + tempint]) +" + "+ z8.A +" + "+ z8.Flags.charAt(7)+" ");
                             if (checksumcix > 127) {
                                 checksumcix -= 256;
                                 z8.Flags = z8.Flags.substring(0, 7) + "1";
@@ -948,6 +981,7 @@ public class Z80 {
                             }
                             z8.A = checksumcix;
                             gui.updateLogText(" = "+z8.A+"\n");
+                            gui.updateLogDevText(" = "+z8.A+"\n");
                             z8.checkAcc();
                             index++;
                             z8.setFZero();
@@ -961,6 +995,7 @@ public class Z80 {
                             int checksubix;
                             checksubix = z8.A - hexToDec(Memory[z8.IX + tempint]);
                             gui.updateLogText("Resta: "+z8.A+"-"+hexToDec(Memory[z8.IX + tempint])+" ");
+                            gui.updateLogDevText("Resta: "+z8.A+"-"+hexToDec(Memory[z8.IX + tempint])+" ");
                             if (checksubix > 127) {
                                 checksubix -= 256;
                                 z8.Flags = z8.Flags.substring(0, 7) + "1";
@@ -971,6 +1006,7 @@ public class Z80 {
                     
                             z8.A = checksubix;
                             gui.updateLogText("="+z8.A+"\n");
+                            gui.updateLogDevText("="+z8.A+"\n");
                             z8.checkAcc();
                             z8.Flags = z8.Flags.substring(0, 6) + "1" + z8.Flags.substring(7);
                             z8.setF();
@@ -986,6 +1022,7 @@ public class Z80 {
                             int checksbcix;
                             checksbcix = z8.A - hexToDec(Memory[z8.IX + tempint]) - binToDec(z8.Flags.charAt(7)+"");
                             gui.updateLogText("sbc: " + hexToDec(Memory[z8.IX + tempint]) +" - "+ z8.A +" - "+ z8.Flags.charAt(7)+" ");
+                            gui.updateLogDevText("sbc: " + hexToDec(Memory[z8.IX + tempint]) +" - "+ z8.A +" - "+ z8.Flags.charAt(7)+" ");
                             if (checksbcix > 127) {
                                 checksbcix -= 256;
                                 z8.Flags = z8.Flags.substring(0, 7) + "1";
@@ -996,6 +1033,7 @@ public class Z80 {
                     
                             z8.A = checksbcix;
                             gui.updateLogText(" = "+z8.A+"\n");
+                            gui.updateLogDevText(" = "+z8.A+"\n");
                             z8.checkAcc();
                             z8.Flags = z8.Flags.substring(0, 6) + "1" + z8.Flags.substring(7);
                             z8.setF();
@@ -1012,8 +1050,10 @@ public class Z80 {
                             System.out.println(z8.A + " " + tempandix + " " + (byte) z8.A + " " + (byte) tempandix);
                             //gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
                             gui.updateLogText("And: "+z8.A+"&"+tempandix+" ");
+                            gui.updateLogDevText("And: "+z8.A+"&"+tempandix+" ");
                             z8.A = z8.A & tempandix;
                             gui.updateLogText("="+z8.A+"\n");
+                            gui.updateLogDevText("="+z8.A+"\n");
                             z8.checkAcc();
                             index++;
                             z8.setFZero();
@@ -1028,8 +1068,10 @@ public class Z80 {
                             System.out.println(z8.A + " " + tempxorix + " " + (byte) z8.A + " " + (byte) tempxorix);
                             //gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
                             gui.updateLogText("And: "+z8.A+"&"+tempxorix+" ");
+                            gui.updateLogDevText("And: "+z8.A+"&"+tempxorix+" ");
                             z8.A = z8.A ^ tempxorix;
                             gui.updateLogText("="+z8.A+"\n");
+                            gui.updateLogDevText("="+z8.A+"\n");
                             z8.checkAcc();
                             index++;
                             z8.setFZero();
@@ -1044,8 +1086,10 @@ public class Z80 {
                             System.out.println(z8.A + " " + temporix + " " + (byte) z8.A + " " + (byte) temporix);
                             //gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
                             gui.updateLogText("And: "+z8.A+"&"+temporix+" ");
+                            gui.updateLogDevText("And: "+z8.A+"&"+temporix+" ");
                             z8.A = z8.A | temporix;
                             gui.updateLogText("="+z8.A+"\n");
+                            gui.updateLogDevText("="+z8.A+"\n");
                             z8.checkAcc();
                             index++;
                             z8.setFZero();
@@ -1193,6 +1237,7 @@ public class Z80 {
                             tempint = hexToDec(Memory[Integer.parseInt(tempidy, 16)]);
                             checksumiy = hexToDec(Memory[z8.IY + tempint]) + z8.A;
                             gui.updateLogText("Suma: "+hexToDec(Memory[z8.IY + tempint])+"+"+z8.A+" ");
+                            gui.updateLogDevText("Suma: "+hexToDec(Memory[z8.IY + tempint])+"+"+z8.A+" ");
                             if (checksumiy > 127) {
                                 checksumiy -= 256;
                                 z8.Flags = z8.Flags.substring(0, 7) + "1";
@@ -1202,6 +1247,7 @@ public class Z80 {
                             }
                             z8.A = checksumiy;
                             gui.updateLogText("="+z8.A+"\n");
+                            gui.updateLogDevText("="+z8.A+"\n");
                             z8.checkAcc();
                             index++;
                             z8.setFZero();
@@ -1215,6 +1261,7 @@ public class Z80 {
                             tempint = hexToDec(Memory[Integer.parseInt(tempidy, 16)]);
                             checksumciy = hexToDec(Memory[z8.IY + tempint]) + z8.A + binToDec(z8.Flags.charAt(7)+"");
                             gui.updateLogText("adc: " + hexToDec(Memory[z8.IY + tempint]) +" + "+ z8.A +" + "+ z8.Flags.charAt(7)+" ");
+                            gui.updateLogDevText("adc: " + hexToDec(Memory[z8.IY + tempint]) +" + "+ z8.A +" + "+ z8.Flags.charAt(7)+" ");
                             if (checksumciy > 127) {
                                 checksumciy -= 256;
                                 z8.Flags = z8.Flags.substring(0, 7) + "1";
@@ -1224,6 +1271,7 @@ public class Z80 {
                             }
                             z8.A = checksumciy;
                             gui.updateLogText(" = "+z8.A+"\n");
+                            gui.updateLogDevText(" = "+z8.A+"\n");
                             z8.checkAcc();
                             index++;
                             z8.setFZero();
@@ -1237,6 +1285,7 @@ public class Z80 {
                             int checksubiy;
                             checksubiy = z8.A - hexToDec(Memory[z8.IY + tempint]);
                             gui.updateLogText("Resta: "+z8.A+"-"+hexToDec(Memory[z8.IY + tempint])+" ");
+                            gui.updateLogDevText("Resta: "+z8.A+"-"+hexToDec(Memory[z8.IY + tempint])+" ");
                             if (checksubiy > 127) {
                                 checksubiy -= 256;
                                 z8.Flags = z8.Flags.substring(0, 7) + "1";
@@ -1247,6 +1296,7 @@ public class Z80 {
                     
                             z8.A = checksubiy;
                             gui.updateLogText("="+z8.A+"\n");
+                            gui.updateLogDevText("="+z8.A+"\n");
                             z8.checkAcc();
                             z8.Flags = z8.Flags.substring(0, 6) + "1" + z8.Flags.substring(7);
                             z8.setF();
@@ -1262,6 +1312,7 @@ public class Z80 {
                             int checksbciy;
                             checksbciy = z8.A - hexToDec(Memory[z8.IY + tempint]) - binToDec(z8.Flags.charAt(7)+"");
                             gui.updateLogText("sbc: " + hexToDec(Memory[z8.IY + tempint]) +" - "+ z8.A +" - "+ z8.Flags.charAt(7)+" ");
+                            gui.updateLogDevText("sbc: " + hexToDec(Memory[z8.IY + tempint]) +" - "+ z8.A +" - "+ z8.Flags.charAt(7)+" ");
                             if (checksbciy > 127) {
                                 checksbciy -= 256;
                                 z8.Flags = z8.Flags.substring(0, 7) + "1";
@@ -1272,6 +1323,7 @@ public class Z80 {
                     
                             z8.A = checksbciy;
                             gui.updateLogText(" = "+z8.A+"\n");
+                            gui.updateLogDevText(" = "+z8.A+"\n");
                             z8.checkAcc();
                             z8.Flags = z8.Flags.substring(0, 6) + "1" + z8.Flags.substring(7);
                             z8.setF();
@@ -1288,8 +1340,10 @@ public class Z80 {
                             System.out.println(z8.A + " " + tempandiy + " " + (byte) z8.A + " " + (byte) tempandiy);
                             //gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
                             gui.updateLogText("And: "+z8.A+"&"+tempandiy+" ");
+                            gui.updateLogDevText("And: "+z8.A+"&"+tempandiy+" ");
                             z8.A = z8.A & tempandiy;
                             gui.updateLogText("="+z8.A+"\n");
+                            gui.updateLogDevText("="+z8.A+"\n");
                             z8.checkAcc();
                             index++;
                             z8.setFZero();
@@ -1304,8 +1358,10 @@ public class Z80 {
                             System.out.println(z8.A + " " + tempxoriy + " " + (byte) z8.A + " " + (byte) tempxoriy);
                             //gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
                             gui.updateLogText("And: "+z8.A+"&"+tempxoriy+" ");
+                            gui.updateLogDevText("And: "+z8.A+"&"+tempxoriy+" ");
                             z8.A = z8.A ^ tempxoriy;
                             gui.updateLogText("="+z8.A+"\n");
+                            gui.updateLogDevText("="+z8.A+"\n");
                             z8.checkAcc();
                             index++;
                             z8.setFZero();
@@ -1320,8 +1376,10 @@ public class Z80 {
                             System.out.println(z8.A + " " + temporiy + " " + (byte) z8.A + " " + (byte) temporiy);
                             //gui.updateLogText(z8.A + " " + tempand + " " + (byte) z8.A + " " + (byte) tempand+"\n");
                             gui.updateLogText("And: "+z8.A+"&"+temporiy+" ");
+                            gui.updateLogDevText("And: "+z8.A+"&"+temporiy+" ");
                             z8.A = z8.A | temporiy;
                             gui.updateLogText("="+z8.A+"\n");
+                            gui.updateLogDevText("="+z8.A+"\n");
                             z8.checkAcc();
                             index++;
                             z8.setFZero();
@@ -1410,15 +1468,19 @@ public class Z80 {
                 case "end": // codigo finaliza la ejecución
                     System.out.println("End");
                     gui.updateLogText("End"+"\n");
+                    gui.updateLogDevText("End"+"\n");
                     end = true;
                     break;
                 
                 default:
                     System.out.println("I mistake");
                     gui.updateLogText("I mistake"+"\n");
+                    gui.updateLogDevText("I mistake"+"\n");
                     end = true;
                     break;
             }
+            
+            
             gui.updateAText(z8.A+"");
             gui.updateBText(z8.B+"");
             gui.updateCText(z8.C+"");
@@ -1428,7 +1490,11 @@ public class Z80 {
             gui.updateLText(z8.L+"");
             gui.updateFText(decToBin(z8.F)+"");
             
+            gui.updateIXText(z8.IX+"");
+            gui.updateIYText(z8.IY+"");
+            
             gui.updateRegistersText(
+                    currentIteration+"\n"+
                     "A: "+z8.A+" B: "+z8.B+"\n"+
                     "C: "+z8.C+" D: "+z8.D+"\n"+
                     "E: "+z8.E+" H: "+z8.H+"\n"+
@@ -1440,8 +1506,19 @@ public class Z80 {
                     memoryToString(Memory)
             );
             
-            gui.updateOutputText(Memory[65535]+"");
+            gui.updateIXIYHistoryText(
+                    currentIteration+"\n"+
+                    "IX: "+z8.IX+"\n"+
+                    "IY: "+z8.IY+"\n"+
+                    "------------"+"\n"
+            );
             
+            gui.updateOutputText(Memory[65535]+"");
+            gui.updateOutputHistoryText(
+                    currentIteration+"\n"+
+                    "Output: "+Memory[65535]+"\n"+
+                    "---------------"+"\n"
+            );
             //65535 => out / 65534 => in
             
             if(stepMode){
@@ -1450,7 +1527,6 @@ public class Z80 {
         }
         
         System.out.println(z8.A);
-        gui.updateLogText(z8.A+"\n");
     }
     
     public static String memoryToString(String[] Arr){
