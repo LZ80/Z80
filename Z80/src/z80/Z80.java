@@ -51,11 +51,13 @@ public class Z80 {
             } else {
                 this.Flags = "0" + this.Flags.substring(1);
             }
+            this.setF();
             
         }
         
         public void setFZero() {    //pone en 0 los valores relacionados a la operacion anterior
-            this.Flags = this.Flags.substring(0, 2) + "000000";            
+            this.Flags = this.Flags.substring(0, 2) + "000000";       
+            this.setF();
         }
     }
     
@@ -246,6 +248,8 @@ public class Z80 {
             if(reset){
                 return;
             }
+            System.out.println(z8.Flags);
+            System.out.println(z8.F);
             if(state!="end"){
                 if (req5.equals("10000")) {
                     state = "add";
@@ -303,14 +307,15 @@ public class Z80 {
                     gui.updateLogText("carga en A<- "+z8.A+"\n");
                     break;
                 case "jnz": //Jump si lo que está en el acumulador es negativo o 0
-                    index++;
                     if (((z8.Flags).charAt(0) == '1') || ((z8.Flags).charAt(1) == '1')) {
+                        index++;
                         tempidx = Memory[index];
                         index++;
                         tempidx = Memory[index] + tempidx + "";
                         index = Integer.parseInt(tempidx, 16);
                         gui.updateLogText("Salto a "+tempidx+"H"+"\n");
                     } else {
+                        index++;
                         index++;
                         index++;
                         gui.updateLogText("No hay salto"+"\n");
@@ -327,14 +332,15 @@ public class Z80 {
                     z8.setFZero();
                     break;
                 case "jz": //Jump si el acumulador es 0;
-                    index++;
                     if (decToBin(z8.F).charAt(1) == '1') {
+                        index++;
                         tempidx = Memory[index];
                         index++;
                         tempidx = Memory[index] + tempidx + "";
                         index = Integer.parseInt(tempidx, 16);
                         gui.updateLogText("Salto a "+tempidx+"H"+"\n");
                     } else {
+                        index++;
                         index++;
                         index++;
                         gui.updateLogText("No hay salto "+"\n");
