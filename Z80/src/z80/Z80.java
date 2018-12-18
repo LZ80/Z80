@@ -1113,6 +1113,7 @@ public class Z80 {
                         case "jp":
                             index = z8.IX;
                             gui.updateLogText("Jump to IX("+ z8.IX + ")" + "\n");
+                            gui.updateLogDevText("Jump to IX("+ z8.IX + ")" + "\n");
                             z8.setFZero();
                             break;
                         case "ldixr":
@@ -1121,39 +1122,47 @@ public class Z80 {
                             int templdix = 0;
                             pos2 = req.substring(5, 8);
                             gui.updateLogText("Load ");
-                    
+                            gui.updateLogDevText("Load ");
                             switch (pos2) {
                                 case "111":
                                     templdix = z8.A;
-                                    gui.updateLogText("reg A(" + z8.A+")");
+                                    gui.updateLogNoNumText("reg A(" + z8.A+")");
+                                    gui.updateLogDevText("reg A(" + z8.A+")");
                                     break;
                                 case "000":
                                     templdix = z8.B;
-                                    gui.updateLogText("reg B(" + z8.B+")");
+                                    gui.updateLogNoNumText("reg B(" + z8.B+")");
+                                    gui.updateLogDevText("reg B(" + z8.B+")");
                                     break;
                                 case "001":
                                     templdix = z8.C;
-                                    gui.updateLogText("reg C(" + z8.C+")");
+                                    gui.updateLogNoNumText("reg C(" + z8.C+")");
+                                    gui.updateLogDevText("reg C(" + z8.C+")");
                                     break;
                                 case "010":
                                     templdix = z8.D;
-                                    gui.updateLogText("reg D(" + z8.D+")");
+                                    gui.updateLogNoNumText("reg D(" + z8.D+")");
+                                    gui.updateLogDevText("reg D(" + z8.D+")");
                                     break;
                                 case "011":
                                     templdix = z8.E;
-                                    gui.updateLogText("reg E(" + z8.E+")");
+                                    gui.updateLogNoNumText("reg E(" + z8.E+")");
+                                    gui.updateLogDevText("reg E(" + z8.E+")");
                                     break;
                                 case "100":
                                     templdix = z8.H;
-                                    gui.updateLogText("reg H(" + z8.H+")");
+                                    gui.updateLogNoNumText("reg H(" + z8.H+")");
+                                    gui.updateLogDevText("reg H(" + z8.H+")");
                                     break;
                                 case "101":
                                     templdix = z8.L;
-                                    gui.updateLogText("reg L(" + z8.L+")");
+                                    gui.updateLogNoNumText("reg L(" + z8.L+")");
+                                    gui.updateLogDevText("reg L(" + z8.L+")");
                                     break;
                             }
                             Memory[z8.IX + tempint] = decToHex(templdix);
-                            gui.updateLogText(" Into XI"+ "\n");
+                            gui.updateLogNoNumText(" Into XI"+ "\n");
+                            gui.updateLogDevText(" Into XI"+ "\n");
                             z8.checkAcc();
                             z8.setFZero();
                             index++;
@@ -1164,39 +1173,47 @@ public class Z80 {
                             int templdrix = Integer.parseInt(Memory[z8.IX + tempint],16);
                             pos1 = req.substring(2, 5);
                             gui.updateLogText("Loads into ");
-                            
+                            gui.updateLogDevText("Loads into ");
                             switch (pos1) {
                                 case "111":
                                     z8.A = templdrix;
-                                    gui.updateLogText("reg A");
+                                    gui.updateLogNoNumText("reg A");
+                                    gui.updateLogDevText("reg A");
                                     z8.checkAcc();
                                     break;
                                 case "000":
                                     z8.B = templdrix;
-                                    gui.updateLogText("reg B");
+                                    gui.updateLogNoNumText("reg B");
+                                    gui.updateLogDevText("reg B");
                                     break;
                                 case "001":
                                     z8.C = templdrix;
-                                    gui.updateLogText("reg C");
+                                    gui.updateLogNoNumText("reg C");
+                                    gui.updateLogDevText("reg C");
                                     break;
                                 case "010":
                                     z8.D = templdrix;
-                                    gui.updateLogText("reg D");
+                                    gui.updateLogNoNumText("reg D");
+                                    gui.updateLogDevText("reg D");
                                     break;
                                 case "011":
                                     z8.E = templdrix;
-                                    gui.updateLogText("reg E");
+                                    gui.updateLogNoNumText("reg E");
+                                    gui.updateLogDevText("reg E");
                                     break;
                                 case "100":
                                     z8.H = templdrix;
-                                    gui.updateLogText("reg H");
+                                    gui.updateLogNoNumText("reg H");
+                                    gui.updateLogDevText("reg H");
                                     break;
                                 case "101":
                                     z8.L = templdrix;
-                                    gui.updateLogText("reg L");
+                                    gui.updateLogNoNumText("reg L");
+                                    gui.updateLogDevText("reg L");
                                     break;
                             }
-                            gui.updateLogText(" : IX(" + templdrix+")" + "\n");
+                            gui.updateLogNoNumText(" : IX(" + templdrix+")" + "\n");
+                            gui.updateLogDevText(" : IX(" + templdrix+")" + "\n");
                             z8.checkAcc();
                             z8.setFZero();
                             index++;
@@ -1207,6 +1224,7 @@ public class Z80 {
                     index++;
                     req = hexToBin(Memory[index]);
                     System.out.println("IY "+Memory[index] + "(" + index + ")" + ": " + req);
+                    gui.updateLogDevText("IY "+Memory[index] + "(" + index + ")" + ": " + req);
                     req5 = req.substring(0, 5);
                     req2 = req.substring(0, 2);
                     req8 = req.substring(5);
@@ -1248,6 +1266,7 @@ public class Z80 {
                             tempidy = Memory[index] + tempidy + "";
                             z8.IY = Integer.parseInt(tempidy, 16);
                             gui.updateLogText("Loading "+ tempidy + " into IY" + "\n");
+                            gui.updateLogDevText("Loading "+ tempidy + " into IY" + "\n");
                             z8.checkAcc();
                             z8.setFZero();
                             index++;
@@ -1259,6 +1278,7 @@ public class Z80 {
                             tempint2 = hexToDec(Memory[index]); //n
                             Memory[z8.IY + tempint] = decToHex(tempint2);
                             gui.updateLogText("Loading into IY[" + tempint + "]: "+"n(" + tempint2 + ")" + "\n");
+                            gui.updateLogDevText("Loading into IY[" + tempint + "]: "+"n(" + tempint2 + ")" + "\n");
                             index++;
                             break;
                         case "ldtiy":
@@ -1269,6 +1289,7 @@ public class Z80 {
                             Memory[Integer.parseInt(tempidy, 16)] = Integer.toHexString(z8.IY % 256);
                             Memory[Integer.parseInt(tempidy, 16)-1] = Integer.toHexString((z8.IY-(z8.IY % 256))/256);
                             gui.updateLogText("Loading into "+ tempidy + " IY(" + z8.IY + ")" + "\n");
+                            gui.updateLogDevText("Loading into "+ tempidy + " IY(" + z8.IY + ")" + "\n");
                             index++;
                             break;
                         case "add":
@@ -1431,6 +1452,7 @@ public class Z80 {
                             index = z8.IY;
                             z8.setFZero();
                             gui.updateLogText("Jump to IY("+ z8.IY + ")" + "\n");
+                            gui.updateLogDevText("Jump to IY("+ z8.IY + ")" + "\n");
                             break;
                         case "ldiyr":
                             index++;
@@ -1438,39 +1460,48 @@ public class Z80 {
                             int templdiy = 0;
                             pos2 = req.substring(5, 8);
                             gui.updateLogText("Load ");
+                            gui.updateLogDevText("Load ");
                     
                             switch (pos2) {
                                 case "111":
                                     templdiy = z8.A;
-                                    gui.updateLogText("reg A(" + z8.A+")");
+                                    gui.updateLogNoNumText("reg A(" + z8.A+")");
+                                    gui.updateLogDevText("reg A(" + z8.A+")");
                                     break;
                                 case "000":
                                     templdiy = z8.B;
-                                    gui.updateLogText("reg B(" + z8.B+")");
+                                    gui.updateLogNoNumText("reg B(" + z8.B+")");
+                                    gui.updateLogDevText("reg B(" + z8.B+")");
                                     break;
                                 case "001":
                                     templdiy = z8.C;
-                                    gui.updateLogText("reg C(" + z8.C+")");
+                                    gui.updateLogNoNumText("reg C(" + z8.C+")");
+                                    gui.updateLogDevText("reg C(" + z8.C+")");
                                     break;
                                 case "010":
                                     templdiy = z8.D;
-                                    gui.updateLogText("reg D(" + z8.D+")");
+                                    gui.updateLogNoNumText("reg D(" + z8.D+")");
+                                    gui.updateLogDevText("reg D(" + z8.D+")");
                                     break;
                                 case "011":
                                     templdiy = z8.E;
-                                    gui.updateLogText("reg E(" + z8.E+")");
+                                    gui.updateLogNoNumText("reg E(" + z8.E+")");
+                                    gui.updateLogDevText("reg E(" + z8.E+")");
                                     break;
                                 case "100":
                                     templdiy = z8.H;
-                                    gui.updateLogText("reg H(" + z8.H+")");
+                                    gui.updateLogNoNumText("reg H(" + z8.H+")");
+                                    gui.updateLogDevText("reg H(" + z8.H+")");
                                     break;
                                 case "101":
                                     templdiy = z8.L;
-                                    gui.updateLogText("reg L(" + z8.L+")");
+                                    gui.updateLogNoNumText("reg L(" + z8.L+")");
+                                    gui.updateLogDevText("reg L(" + z8.L+")");
                                     break;
                             }
                             Memory[z8.IY + tempint] = decToHex(templdiy);
-                            gui.updateLogText(" Into IY"+ "\n");
+                            gui.updateLogNoNumText(" Into IY"+ "\n");
+                            gui.updateLogDevText(" Into IY"+ "\n");
                             z8.checkAcc();
                             z8.setFZero();
                             index++;
@@ -1481,39 +1512,48 @@ public class Z80 {
                             int templdriy = Integer.parseInt(Memory[z8.IY + tempint],16);
                             pos1 = req.substring(2, 5);
                             gui.updateLogText("Loads into ");
+                            gui.updateLogDevText("Loads into ");
                             
                             switch (pos1) {
                                 case "111":
                                     z8.A = templdriy;
-                                    gui.updateLogText("reg A");
+                                    gui.updateLogNoNumText("reg A");
+                                    gui.updateLogDevText("reg A");
                                     z8.checkAcc();
                                     break;
                                 case "000":
                                     z8.B = templdriy;
-                                    gui.updateLogText("reg B");
+                                    gui.updateLogNoNumText("reg B");
+                                    gui.updateLogDevText("reg B");
                                     break;
                                 case "001":
                                     z8.C = templdriy;
-                                    gui.updateLogText("reg C");
+                                    gui.updateLogNoNumText("reg C");
+                                    gui.updateLogDevText("reg C");
                                     break;
                                 case "010":
                                     z8.D = templdriy;
-                                    gui.updateLogText("reg D");
+                                    gui.updateLogNoNumText("reg D");
+                                    gui.updateLogDevText("reg D");
                                     break;
                                 case "011":
                                     z8.E = templdriy;
-                                    gui.updateLogText("reg E");
+                                    gui.updateLogNoNumText("reg E");
+                                    gui.updateLogDevText("reg E");
                                     break;
                                 case "100":
                                     z8.H = templdriy;
-                                    gui.updateLogText("reg H");
+                                    gui.updateLogNoNumText("reg H");
+                                    gui.updateLogDevText("reg H");
                                     break;
                                 case "101":
                                     z8.L = templdriy;
-                                    gui.updateLogText("reg L");
+                                    gui.updateLogNoNumText("reg L");
+                                    gui.updateLogDevText("reg L");
                                     break;
                             }
-                            gui.updateLogText(" : IY(" + templdriy+")" + "\n");
+                            gui.updateLogNoNumText(" : IY(" + templdriy+")" + "\n");
+                            gui.updateLogDevText(" : IY(" + templdriy+")" + "\n");
                             z8.checkAcc();
                             z8.setFZero();
                             index++;
@@ -1536,7 +1576,7 @@ public class Z80 {
             }
             
             
-            gui.updateAText(z8.A+"");
+                        gui.updateAText(z8.A+"");
             gui.updateBText(z8.B+"");
             gui.updateCText(z8.C+"");
             gui.updateDText(z8.D+"");
@@ -1558,13 +1598,13 @@ public class Z80 {
             );
             
             gui.updateMemoryText(
-                    memoryToString(Memory)
+                    memoryToString(Memory, z8.IX, z8.IY)
             );
             
             gui.updateIXIYHistoryText(
                     currentIteration+")\n"+
-                    "IX: "+z8.IX+"\n"+
-                    "IY: "+z8.IY+"\n"+
+                    "IX: "+IXYString(z8.IX, Memory)+"\n"+
+                    "IY: "+IXYString(z8.IY, Memory)+"\n"+
                     "------------"+"\n"
             );
             
@@ -1584,7 +1624,20 @@ public class Z80 {
         System.out.println(z8.A);
     }
     
-    public static String memoryToString(String[] Arr){
+    public static String IXYString(int ix, String[] Arr){
+        if(ix!=0){
+            String x = "";
+            for(int i = ix; i<ix+16; i++){
+                x = x+Arr[i]+" ";
+            }
+            return x;
+        } else {
+            return "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+        }
+
+    }
+    
+    public static String memoryToString(String[] Arr, int ix, int iy){
         
         String x = "";
         int count = 0;
@@ -1604,7 +1657,17 @@ public class Z80 {
                 count++;
             }
             if(count>5){
-                return x+"...\n"+Arr[65534]+", "+Arr[65535];
+                if(ix != 0 && iy != 0){
+                    if(ix<iy){
+                        return x+"\n...\n"+IXYString(ix,Arr)+"\n...\n"+IXYString(iy,Arr)+"\n...\n"+Arr[65534]+", "+Arr[65535];
+                    }
+                    return x+"\n...\n"+IXYString(iy,Arr)+"\n...\n"+IXYString(ix,Arr)+"\n...\n"+Arr[65534]+", "+Arr[65535];
+                } else if (ix != 0 && iy == 0){
+                    return x+"\n...\n"+IXYString(ix,Arr)+"\n...\n"+Arr[65534]+", "+Arr[65535];
+                } else if (ix == 0 && iy != 0){
+                    return x+"\n...\n"+IXYString(iy,Arr)+"\n...\n"+Arr[65534]+", "+Arr[65535];
+                }
+                return x+"\n...\n"+Arr[65534]+", "+Arr[65535];
             }
         }
         
