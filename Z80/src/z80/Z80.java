@@ -298,6 +298,7 @@ public class Z80 {
                 }
             }
             System.out.println(state);
+            System.out.println(z8.IX +" "+z8.IY+"<-");
             gui.updateLogDevText(currentIteration+")"+"\n"+"index = "+index+"\n");
             gui.updateLogDevText(state+": "+Memory[index]+"H"+"\n");
             switch (state) {
@@ -923,12 +924,13 @@ public class Z80 {
                         IXstate = "";
                     }
                     switch(IXstate) {
-                        case "ldnix":
+                        case "ldnix":       //H21
                             index++;
                             tempidx = Memory[index];
                             index++;
                             tempidx = Memory[index] + tempidx + "";
                             z8.IX = Integer.parseInt(tempidx, 16);
+                            gui.updateLogText("Loading "+ tempidx + " into IX" + "\n");
                             z8.checkAcc();
                             z8.setFZero();
                             index++;
@@ -940,6 +942,7 @@ public class Z80 {
                             tempidx = Memory[index] + tempidx + "";
                             Memory[Integer.parseInt(tempidx, 16)] = Integer.toHexString(z8.IX % 256);
                             Memory[Integer.parseInt(tempidx, 16)-1] = Integer.toHexString((z8.IX-(z8.IX % 256))/256);
+                            gui.updateLogText("Loading into "+ tempidx + " IX(" + z8.IX + ")" + "\n");
                             index++;
                             break;
                         case "ldnn":        //LD (IX+d), n
@@ -948,6 +951,7 @@ public class Z80 {
                             index++;
                             tempint2 = hexToDec(Memory[index]); //n
                             Memory[z8.IX + tempint] = decToHex(tempint2);
+                            gui.updateLogText("Loading into IX[" + tempint + "]: "+"n(" + tempint2 + ")" + "\n");
                             index++;
                             break;
                         case "add":
@@ -1108,6 +1112,7 @@ public class Z80 {
                             break;
                         case "jp":
                             index = z8.IX;
+                            gui.updateLogText("Jump to IX("+ z8.IX + ")" + "\n");
                             z8.setFZero();
                             break;
                         case "ldixr":
@@ -1115,31 +1120,40 @@ public class Z80 {
                             tempint = Integer.parseInt(Memory[index],16);
                             int templdix = 0;
                             pos2 = req.substring(5, 8);
+                            gui.updateLogText("Load ");
                     
                             switch (pos2) {
                                 case "111":
                                     templdix = z8.A;
+                                    gui.updateLogText("reg A(" + z8.A+")");
                                     break;
                                 case "000":
                                     templdix = z8.B;
+                                    gui.updateLogText("reg B(" + z8.B+")");
                                     break;
                                 case "001":
                                     templdix = z8.C;
+                                    gui.updateLogText("reg C(" + z8.C+")");
                                     break;
                                 case "010":
                                     templdix = z8.D;
+                                    gui.updateLogText("reg D(" + z8.D+")");
                                     break;
                                 case "011":
                                     templdix = z8.E;
+                                    gui.updateLogText("reg E(" + z8.E+")");
                                     break;
                                 case "100":
                                     templdix = z8.H;
+                                    gui.updateLogText("reg H(" + z8.H+")");
                                     break;
                                 case "101":
                                     templdix = z8.L;
+                                    gui.updateLogText("reg L(" + z8.L+")");
                                     break;
                             }
                             Memory[z8.IX + tempint] = decToHex(templdix);
+                            gui.updateLogText(" Into XI"+ "\n");
                             z8.checkAcc();
                             z8.setFZero();
                             index++;
@@ -1149,38 +1163,40 @@ public class Z80 {
                             tempint = Integer.parseInt(Memory[index],16);
                             int templdrix = Integer.parseInt(Memory[z8.IX + tempint],16);
                             pos1 = req.substring(2, 5);
+                            gui.updateLogText("Loads into ");
                             
                             switch (pos1) {
                                 case "111":
                                     z8.A = templdrix;
-                                    rname1 = "A";
+                                    gui.updateLogText("reg A");
                                     z8.checkAcc();
                                     break;
                                 case "000":
                                     z8.B = templdrix;
-                                    rname1 = "B";
+                                    gui.updateLogText("reg B");
                                     break;
                                 case "001":
                                     z8.C = templdrix;
-                                    rname1 = "C";
+                                    gui.updateLogText("reg C");
                                     break;
                                 case "010":
                                     z8.D = templdrix;
-                                    rname1 = "D";
+                                    gui.updateLogText("reg D");
                                     break;
                                 case "011":
                                     z8.E = templdrix;
-                                    rname1 = "E";
+                                    gui.updateLogText("reg E");
                                     break;
                                 case "100":
                                     z8.H = templdrix;
-                                    rname1 = "H";
-                                break;
+                                    gui.updateLogText("reg H");
+                                    break;
                                 case "101":
                                     z8.L = templdrix;
-                                    rname1 = "L";
+                                    gui.updateLogText("reg L");
                                     break;
                             }
+                            gui.updateLogText(" : IX(" + templdrix+")" + "\n");
                             z8.checkAcc();
                             z8.setFZero();
                             index++;
@@ -1231,6 +1247,7 @@ public class Z80 {
                             index++;
                             tempidy = Memory[index] + tempidy + "";
                             z8.IY = Integer.parseInt(tempidy, 16);
+                            gui.updateLogText("Loading "+ tempidy + " into IY" + "\n");
                             z8.checkAcc();
                             z8.setFZero();
                             index++;
@@ -1241,6 +1258,7 @@ public class Z80 {
                             index++;
                             tempint2 = hexToDec(Memory[index]); //n
                             Memory[z8.IY + tempint] = decToHex(tempint2);
+                            gui.updateLogText("Loading into IY[" + tempint + "]: "+"n(" + tempint2 + ")" + "\n");
                             index++;
                             break;
                         case "ldtiy":
@@ -1250,6 +1268,7 @@ public class Z80 {
                             tempidy = Memory[index] + tempidy + "";
                             Memory[Integer.parseInt(tempidy, 16)] = Integer.toHexString(z8.IY % 256);
                             Memory[Integer.parseInt(tempidy, 16)-1] = Integer.toHexString((z8.IY-(z8.IY % 256))/256);
+                            gui.updateLogText("Loading into "+ tempidy + " IY(" + z8.IY + ")" + "\n");
                             index++;
                             break;
                         case "add":
@@ -1411,37 +1430,47 @@ public class Z80 {
                         case "jp":
                             index = z8.IY;
                             z8.setFZero();
+                            gui.updateLogText("Jump to IY("+ z8.IY + ")" + "\n");
                             break;
                         case "ldiyr":
                             index++;
                             tempint = Integer.parseInt(Memory[index],16);
                             int templdiy = 0;
                             pos2 = req.substring(5, 8);
+                            gui.updateLogText("Load ");
                     
                             switch (pos2) {
                                 case "111":
                                     templdiy = z8.A;
+                                    gui.updateLogText("reg A(" + z8.A+")");
                                     break;
                                 case "000":
                                     templdiy = z8.B;
+                                    gui.updateLogText("reg B(" + z8.B+")");
                                     break;
                                 case "001":
                                     templdiy = z8.C;
+                                    gui.updateLogText("reg C(" + z8.C+")");
                                     break;
                                 case "010":
                                     templdiy = z8.D;
+                                    gui.updateLogText("reg D(" + z8.D+")");
                                     break;
                                 case "011":
                                     templdiy = z8.E;
+                                    gui.updateLogText("reg E(" + z8.E+")");
                                     break;
                                 case "100":
                                     templdiy = z8.H;
+                                    gui.updateLogText("reg H(" + z8.H+")");
                                     break;
                                 case "101":
                                     templdiy = z8.L;
+                                    gui.updateLogText("reg L(" + z8.L+")");
                                     break;
                             }
                             Memory[z8.IY + tempint] = decToHex(templdiy);
+                            gui.updateLogText(" Into IY"+ "\n");
                             z8.checkAcc();
                             z8.setFZero();
                             index++;
@@ -1451,38 +1480,40 @@ public class Z80 {
                             tempint = Integer.parseInt(Memory[index],16);
                             int templdriy = Integer.parseInt(Memory[z8.IY + tempint],16);
                             pos1 = req.substring(2, 5);
+                            gui.updateLogText("Loads into ");
                             
                             switch (pos1) {
                                 case "111":
                                     z8.A = templdriy;
-                                    rname1 = "A";
+                                    gui.updateLogText("reg A");
                                     z8.checkAcc();
                                     break;
                                 case "000":
                                     z8.B = templdriy;
-                                    rname1 = "B";
+                                    gui.updateLogText("reg B");
                                     break;
                                 case "001":
                                     z8.C = templdriy;
-                                    rname1 = "C";
+                                    gui.updateLogText("reg C");
                                     break;
                                 case "010":
                                     z8.D = templdriy;
-                                    rname1 = "D";
+                                    gui.updateLogText("reg D");
                                     break;
                                 case "011":
                                     z8.E = templdriy;
-                                    rname1 = "E";
+                                    gui.updateLogText("reg E");
                                     break;
                                 case "100":
                                     z8.H = templdriy;
-                                    rname1 = "H";
-                                break;
+                                    gui.updateLogText("reg H");
+                                    break;
                                 case "101":
                                     z8.L = templdriy;
-                                    rname1 = "L";
+                                    gui.updateLogText("reg L");
                                     break;
                             }
+                            gui.updateLogText(" : IY(" + templdriy+")" + "\n");
                             z8.checkAcc();
                             z8.setFZero();
                             index++;
