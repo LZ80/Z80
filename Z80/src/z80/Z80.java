@@ -887,8 +887,9 @@ public class Z80 {
                     index++;
                     break;
                 case "IX":
+                    index++;
                     req = hexToBin(Memory[index]);
-                    System.out.println(Memory[index] + "(" + index + ")" + ": " + req);
+                    System.out.println("IX "+Memory[index] + "(" + index + ")" + ": " + req);
                     req5 = req.substring(0, 5);
                     req2 = req.substring(0, 2);
                     req8 = req.substring(5);
@@ -1187,8 +1188,9 @@ public class Z80 {
                     }
                     break;
                 case "IY":
+                    index++;
                     req = hexToBin(Memory[index]);
-                    System.out.println(Memory[index] + "(" + index + ")" + ": " + req);
+                    System.out.println("IY "+Memory[index] + "(" + index + ")" + ": " + req);
                     req5 = req.substring(0, 5);
                     req2 = req.substring(0, 2);
                     req8 = req.substring(5);
@@ -1223,6 +1225,7 @@ public class Z80 {
                     }
                     switch(IYstate) {
                         case "ldniy":
+                            
                             index++;
                             tempidy = Memory[index];
                             index++;
